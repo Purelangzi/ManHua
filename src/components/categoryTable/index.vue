@@ -60,17 +60,33 @@ export default {
       this.categoryData = data.data
     },
     addOrUpdateCategory(row){
-
+      this.$emit('sendRowData',row)
     },
     deleteCategory(row){
-
+      this.$confirm(`确认删除 ${row.name} ?`,'提示',{
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async() => {
+        const {categoryName} = this
+        await this.$API[categoryName].deleteCategory({ids:row.id})
+        this.$message({
+          type: 'success',
+          message: '删除成功!'
+        });
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        });
+      });
     },
   },
   watch: {
+    // 监听父组件传递过来的请求参数的变化
     'requestParams':{
       deep:true,
       handler(newVal,oldVal){
-        console.log(newVal,oldVal);
         this.getCategoryData()
       }
     }

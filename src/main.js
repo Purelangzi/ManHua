@@ -14,8 +14,10 @@ import router from './router'
 
 import '@/icons' // icon
 import '@/permission' // permission control
+// 引入抽离出来的全局公共组件
 import categorySearch from '@/components/categorySearch'
 import categoryTable from '@/components/categoryTable'
+import categoryDialog from '@/components/categoryDialog'
 /**
  * If you don't want to use mock-server
  * you want to use MockJs for mock api
@@ -31,6 +33,7 @@ if (process.env.NODE_ENV === 'production') {
 // 注册全局组件
 Vue.component('categorySearch',categorySearch)
 Vue.component('categoryTable',categoryTable)
+Vue.component('categoryDialog',categoryDialog)
 // set ElementUI lang to EN
 // Vue.use(ElementUI, { locale })
 // 如果想要中文版 element-ui，按如下方式声明
