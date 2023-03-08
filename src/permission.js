@@ -25,7 +25,7 @@ router.beforeEach(async(to, from, next) => {
       next({ path: '/' })
       NProgress.done()
     } else {
-      /* 由于把用户信息存储到cookie中，加上服务器token并没有设置失效时间，下面代码可以省略 */
+      
       let userInfo = JSON.parse(JSON.stringify(store.getters.userInfo))
       if(typeof userInfo =='string'){
         userInfo = JSON.parse(userInfo)
@@ -37,7 +37,6 @@ router.beforeEach(async(to, from, next) => {
         try {
           // get user info
           await store.dispatch('user/login')
-
           next()
         } catch (error) {
           // remove token and go to login page to re-login
@@ -58,11 +57,15 @@ router.beforeEach(async(to, from, next) => {
           next()
         }
       }else{
-        console.log('没有权限，添加静态路由');
-        await store.dispatch('user/addRoutes')
+        // 添加默认路由
+        if(!store.getters.isDefaultRoutes||from.path=='/'){
+          console.log('没有权限，添加默认路由');
+          await store.dispatch('user/addDefaultRoutes')
           next({ ...to, replace: true })
-        next()
-        NProgress.done()
+          NProgress.done()
+        }else{
+          next()
+        }
       }
       
     }

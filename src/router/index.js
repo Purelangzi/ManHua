@@ -37,14 +37,12 @@ export const constantRoutes = [
     component: () => import('@/views/login/index'),
     hidden: true
   },
-
   {
     path: '/404',
     name:'404',
     component: () => import('@/views/404'),
     hidden: true
   },
-
   {
     path: '/',
     component: Layout,
@@ -53,12 +51,9 @@ export const constantRoutes = [
       path: 'home',
       name: '首页',
       component: () => import('@/views/home'),
-      meta: { title: '首页', icon: 'home' }
+      meta: { title: '首页', icon: 'home' ,keepAlive:true}
     }]
   },
-  
-  // 404 page must be placed at the end !!!
-  
 ]
 export const asyncRoutes = [
   {
@@ -88,6 +83,8 @@ export const asyncRoutes = [
     name: '数据中心',
     component: Layout,
     redirect: '/datacenter',
+    // 显示一级菜单
+    alwaysShow:true,
     meta: {title:'数据中心',icon: 'manager' },
     children: [
       {
@@ -139,6 +136,44 @@ export const asyncRoutes = [
         meta: { title: '视频列表',icon:'list'},
         component: () => import('@/views/videoManager/videoList')
       }
+    ]
+  },
+  {
+    path: '/orderManager',
+    name: '订单管理',
+    component: Layout,
+    redirect: '/orderManager',
+    // 显示一级菜单
+    alwaysShow:true,
+    meta: {title:'订单管理',icon: 'manager' },
+    children: [
+      {
+        path: '/orderList',
+        name: '订单列表',
+        meta: { title: '订单列表',icon:'list' },
+        component: () => import('@/views/orderManager/orderList')
+      }
+    ]
+  },
+  {
+    path: '/systemManager',
+    name: '系统管理',
+    component: Layout,
+    redirect: '/systemManager',
+    meta: {title:'系统管理',icon: 'manager' },
+    children: [
+      {
+        path: '/account',
+        name: '账号管理',
+        meta: { title: '账号管理',icon:'manager' },
+        component: () => import('@/views/systemManager/account')
+      },
+      {
+        path: '/role',
+        name: '账号管理',
+        meta: { title: '账号管理',icon:'manager' },
+        component: () => import('@/views/systemManager/role')
+      },
     ]
   },
 ]

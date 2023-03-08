@@ -8,6 +8,7 @@
       <el-dropdown class="avatar-container" trigger="click">
         <div class="avatar-wrapper">
           <img :src="userInfo&&userInfo.avatar?userInfo.avatar:defaultUserimg+'?imageView2/1/w/80/h/80'" class="user-avatar">
+          <span>{{ userInfo.phone }}</span>
           <i class="el-icon-caret-bottom" />
         </div>
         <el-dropdown-menu slot="dropdown" class="user-dropdown">
@@ -116,7 +117,7 @@ export default {
       .avatar-wrapper {
         margin-top: 5px;
         position: relative;
-
+        display: flex;
         .user-avatar {
           cursor: pointer;
           width: 40px;

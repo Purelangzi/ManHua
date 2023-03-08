@@ -14,7 +14,8 @@ import router from './router'
 
 import '@/icons' // icon
 import '@/permission' // permission control
-
+import categorySearch from '@/components/categorySearch'
+import categoryTable from '@/components/categoryTable'
 /**
  * If you don't want to use mock-server
  * you want to use MockJs for mock api
@@ -27,14 +28,16 @@ if (process.env.NODE_ENV === 'production') {
   const { mockXHR } = require('../mock')
   mockXHR()
 }
-
+// 注册全局组件
+Vue.component('categorySearch',categorySearch)
+Vue.component('categoryTable',categoryTable)
 // set ElementUI lang to EN
-Vue.use(ElementUI, { locale })
+// Vue.use(ElementUI, { locale })
 // 如果想要中文版 element-ui，按如下方式声明
-// Vue.use(ElementUI)
-
+Vue.use(ElementUI)
+import * as API from '@/api'
+Vue.prototype.$API = API
 Vue.config.productionTip = false
-
 new Vue({
   el: '#app',
   router,

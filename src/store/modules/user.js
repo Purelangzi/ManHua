@@ -14,7 +14,8 @@ const getDefaultState = () => {
     resultMenus:getResultMenus(),
     menus:getMenus(),
     // 判断是否已添加动态路由，0未添加,1已添加
-    isAddRoutes:localStorage.getItem('isAddRoutes')
+    isAddRoutes:localStorage.getItem('isAddRoutes'),
+    isDefaultRoutes:localStorage.getItem('isDefaultRoutes')||false
 
   }
 }
@@ -34,14 +35,24 @@ const mutations = {
   SET_MENU: (state,menus) => {
     state.menus = menus
   },
+  // 添加动态路由
   SET_RESULTMENUS:(state,asyncRoutes) =>{
+    // 路由合并
     state.resultMenus = constantRoutes.concat(asyncRoutes,anyRoutes)
+    // 本地存储localStorage
     setResultMenus(state.resultMenus)
     resetRouter()
     // router.options.routes = state.resultMenus
     router.addRoutes(state.resultMenus)
     localStorage.setItem('isAddRoutes','1')
   },
+  // 添加默认路由（静态和任意路由）
+  SET_DEFALUTMENUS:(state)=>{
+    state.resultMenus = constantRoutes.concat(anyRoutes)
+    resetRouter()
+    router.addRoutes(state.resultMenus)
+    localStorage.setItem('isDefaultRoutes',true)
+  }
 }
 
 // 对比异步路由，服务器返回的menus有children，异步路由也有children，双层嵌套
@@ -73,23 +84,28 @@ const actions = {
         commit('SET_USERINFO',data.userInfo)
         commit('SET_MENU',data.menus)
         localStorage.setItem('isAddRoutes','0')
+        localStorage.setItem('isDefaultRoutes',false)
+
         // 添加动态路由
         dispatch('addRoutes')
         setToken(data.token)
         setUserInfo(data.userInfo)
         setMenus(data.menus)
-        
         resolve()
       }).catch(error => {
         reject(error)
       })
     })
   },
+  // 添加动态路由
   addRoutes({commit,state}){
     // 深拷贝，对比异步路由
     commit('SET_RESULTMENUS',computedAsyncRoutes(cloneDeep(asyncRoutes),state.menus))
   },
-
+  // 添加默认路由（静态和任意路由）
+  addDefaultRoutes({commit}){
+    commit('SET_DEFALUTMENUS')
+  },
   // 退出登录
   logout({ commit, state }) {
     removeToken() // must remove  token  first
@@ -97,6 +113,7 @@ const actions = {
     removeMenus()
     removeResultMenus()
     localStorage.removeItem('isAddRoutes')
+    localStorage.removeItem('isDefaultRoutes')
     commit('RESET_STATE')
   },
 
