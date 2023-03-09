@@ -18,7 +18,7 @@
         </el-table-column>
         <el-table-column label="操作" align="center">
             <template v-slot="{row}">
-            <el-button type="primary" icon="el-icon-edit" @click="addOrUpdateCategory(row)" >编辑</el-button>
+            <el-button type="primary" icon="el-icon-edit" @click="updateCategory(row)" >编辑</el-button>
             <el-button type="danger " icon="el-icon-delete" @click="deleteCategory(row)" >删除</el-button>
             </template>
         </el-table-column>
@@ -54,14 +54,17 @@ export default {
     this.getCategoryData()
   },
   methods: {
+    // 获取分类数据
     async getCategoryData(){
       const {categoryName} = this
       const {data} = await this.$API[categoryName].getCategory(this.requestParams)
       this.categoryData = data.data
     },
-    addOrUpdateCategory(row){
+    // 触发父组件发送修改分类的事件，并把对应行的数据传递
+    updateCategory(row){
       this.$emit('sendRowData',row)
     },
+    // 删除分类
     deleteCategory(row){
       this.$confirm(`确认删除 ${row.name} ?`,'提示',{
         confirmButtonText: '确定',
@@ -74,6 +77,7 @@ export default {
           type: 'success',
           message: '删除成功!'
         });
+        this.getCategoryData()
       }).catch(() => {
         this.$message({
           type: 'info',

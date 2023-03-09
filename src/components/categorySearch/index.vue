@@ -3,7 +3,7 @@
     <el-card shadow="always" :body-style="{ marginTop: '15px' }">
       <el-form :model="searchForm" ref="searchForm" label-width="80px" :inline="true">
       <el-form-item label="分类名称" prop="name" :rules="[{required:true, message: '名称不能为空',trigger: 'blur'}]">
-        <el-input v-model.trim="searchForm.name" placeholder="请输入搜索内容"></el-input>
+        <el-input v-model.trim="searchForm.name" :disabled="isDisabled" placeholder="请输入搜索内容"></el-input>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" v-show="isShow" @click="searchCategory">查询</el-button>
@@ -24,24 +24,32 @@ export default {
         name:''
       },
       isShow:true,
+      isDisabled:false
     }
   },
   mounted() {
     
   },
   methods: {
+    // 搜索分类名称
     searchCategory(){
       if(this.searchForm.name == '') return
+      this.isDisabled = true
+      // 触发父组件发送搜索分类的事件，并传递表单数据
       this.$emit('sendSeachForm',this.searchForm)
       this.isShow = false
     },
+    // 返回分类表格
     recover(){
       this.searchForm.name = ''
-      this.isShow = false
+      this.isShow = true
+      this.isDisabled = false
       this.$emit('recover')
     },
+    // 添加分类
     addCategory(){
-
+      this.$emit('addCategory')
+      
     },
   },
 }

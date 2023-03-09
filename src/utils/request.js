@@ -17,11 +17,7 @@ service.interceptors.request.use(
     if (store.getters.token) {
       config.headers['token'] = "Bearer "+ getToken() // 请求头添加token和Bearer
       // 配置post的请求头，默认是表单提交
-      config.headers.post['Content-Type'] = 'application/x-www-form-urlencoded; charset=UTF-8'
-
-    }
-    if(config.method == 'post'){
-      config.data = qs.stringify(config.data)
+      config.headers.post['Content-Type'] = 'application/x-www-form-urlencoded'
     }
     return config
   },
@@ -78,12 +74,27 @@ service.interceptors.response.use(
     return Promise.reject(error)
   }
 )
-/* export function get(url,params){
+export function get(url,params){
   return service.get(url,{params})
 }
 
-export function post(url,params){
-  return service.post(url,QS.stringify(params))
-} */
+export function post(url,data){
+  return service({
+    method:'post',
+    url,
+    data:qs.stringify(data)
+  })
+}
+// 文件上传
+export function upload(url,data){
+  return service({
+    method:'post',
+    url,
+    headers:{
+      ["Content-Type"]: "multipart/form-data"
+    },
+    data
+  })
+}
 
 export default service
