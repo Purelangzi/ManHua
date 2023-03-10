@@ -2,10 +2,9 @@
   <div class="cartoonCategory">
     <categorySearch ref="categorySearch" @sendSeachForm="receiveSearchForm" @recover="recover" @addCategory="addCategory" />
     <categoryTable ref="categoryTable" :requestParams='requestParams' :categoryName="categoryName" @sendRowData="acceptRowData" />
-    <categoryDialog ref="categoryDialog" :categoryName="categoryName" :categoryData:="categoryData" @onLoadTable="onLoadTable" />
+    <categoryDialog ref="categoryDialog" :categoryName="categoryName" :categoryData="categoryData" @onLoadTable="onLoadTable" />
   </div>
 </template>
-
 <script>
 
 import categorySearch from '@/components/categorySearch'
@@ -28,7 +27,6 @@ export default {
     }
   },
   mounted() {
-    
   },
   methods: {
     // 接收搜索组件的分类名字
@@ -42,6 +40,10 @@ export default {
     },
     // 从表格组件接收对应行的数据
     acceptRowData(row){
+      // 获取分类数据，传给子组件做添加或修改的检验
+      if(!this.categoryData.length){
+        this.categoryData = this.$refs['categoryTable'].categoryData
+      }
       // 浅拷贝把数据给对话框组件
       this.$refs.categoryDialog.updateForm = {...row}
       // 对话框显示
@@ -49,24 +51,28 @@ export default {
     },
     // 添加分类
     addCategory(){
+      this.$refs['categoryTable'].params.name=''
       // 控制对话框隐藏
       this.$refs.categoryDialog.isShow = true
-      // 控制查询和返回按钮的显隐
-      this.$refs.categorySearch.isShow = true
-      // 获取分类数据
-      this.categoryData = this.$refs['categoryTable'].categoryData
+      // 获取分类数据，传给子组件做添加或修改的检验,分类数据不存在才传递
+      if(!this.categoryData.length){
+        this.categoryData = this.$refs['categoryTable'].categoryData
+      }
+      
     },
     // 添加或修改完成后请求表格数据
-    onLoadTable(status){
+    onLoadTable(){
+      // 控制输入框禁用，清空搜索框，控制查询和返回按钮的显隐
       this.$refs.categorySearch.isDisabled = false
       this.$refs.categorySearch.searchForm.name = ''
-      // 添加
-      if(status == 'add'){
+      this.$refs.categorySearch.isShow = true
+      // 查询参数存在，赋name为空，引起监听器变化从而请求表格数据
+      if(this.requestParams.name){
+          this.requestParams.name = ''
+      // 如果没存在直接请求表格数据
+      }else{
         this.$refs.categoryTable.getCategoryData()
-        return
       }
-      // 修改，赋name为空，引起监听器变化从而请求表格数据
-      this.requestParams.name = ''
     },
   },
 }

@@ -48,6 +48,7 @@ export default {
     return {
         defaultCategoryImg,
         categoryData:[],
+        params:{}
     }
   },
   mounted() {
@@ -56,8 +57,8 @@ export default {
   methods: {
     // 获取分类数据
     async getCategoryData(){
-      const {categoryName} = this
-      const {data} = await this.$API[categoryName].getCategory(this.requestParams)
+      const {categoryName,params} = this
+      const {data} = await this.$API[categoryName].getCategory(params)
       this.categoryData = data.data
     },
     // 触发父组件发送修改分类的事件，并把对应行的数据传递
@@ -86,11 +87,18 @@ export default {
       });
     },
   },
+  computed:{
+    // 深拷贝，直接监听会出现新值旧值都是新值
+    transformParams(){
+      return JSON.parse(JSON.stringify(this.requestParams))
+    }
+  },
   watch: {
-    // 监听父组件传递过来的请求参数的变化
-    'requestParams':{
+    // 监听请求参数的变化
+    transformParams:{
       deep:true,
       handler(newVal,oldVal){
+        this.params = newVal
         this.getCategoryData()
       }
     }

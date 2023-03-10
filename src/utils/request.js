@@ -30,35 +30,14 @@ service.interceptors.request.use(
 
 // 相应拦截器
 service.interceptors.response.use(
-  /**
-   * If you want to get http information such as headers or status
-   * Please return  response => response
-  */
-
-  /**
-   * Determine the request status by custom code
-   * Here is just an example
-   * You can also judge the status by HTTP Status Code
-   */
   response => {
     const res = response.data
-
-    // if the custom code is not 20000, it is judged as an error.
     if (res.code !== 200) {
       Message({
         message: res.msg || '失败',
         type: 'error',
         duration: 5 * 1000
       })
-      // 401:表示Token 过期
-      if (res.code === 401) {
-        // to re-login 
-        Message.warning('token过期了,请重新登陆')
-        store.dispatch('user/resetToken').then(() => {
-          location.reload()
-        })
-      }
-
       return Promise.reject(new Error(res.msg || 'Error'))
     } else {
       return res
@@ -66,11 +45,21 @@ service.interceptors.response.use(
   },
   error => {
     console.log('err' + error) // for debug
-    Message({
-      message: error.message,
-      type: 'error',
-      duration: 5 * 1000
-    })
+    switch (error.response.status) {
+      // 401:表示Token 过期
+      case 401:
+        Message.error(error.response.data.msg)
+        store.dispatch('user/resetToken').then(() => {
+          location.reload()
+        })
+        break;
+        case 404:
+          Message.error('接口请求不存在')
+          break;
+      default:
+        Message.error(error.response.data.message)
+        break;
+    }
     return Promise.reject(error)
   }
 )
