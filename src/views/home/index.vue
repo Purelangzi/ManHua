@@ -27,6 +27,7 @@ export default {
 .dashboard {
   &-container {
     margin: 30px;
+    background-color: #fff;
   }
   &-text {
     font-size: 30px;

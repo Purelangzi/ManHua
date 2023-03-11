@@ -1,7 +1,7 @@
 <template>
 
 <div class="catoonTable">
-    <el-table :data="categoryData" border stripe>
+    <el-table :data="categoryData" border stripe height="650">
         <el-table-column label="序号" type="index" width="100" align="center">
         </el-table-column>
         <el-table-column label="分类名称" prop="name">

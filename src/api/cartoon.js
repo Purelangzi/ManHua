@@ -7,3 +7,11 @@ export const deleteCategory = (data) => post('/api/product/deleteCtcategory',dat
 export const updateCategory = (data) => post('/api/product/editCtcategory',data)
 // 添加漫画分类
 export const addCategory = (data) => post('/api/cartoon/addCategory',data)
+
+// 获取漫画列表
+export const getList = (params) =>get('/api/product/getCartoonList',params)
+// 删除漫画列表
+export const deleteList = (data) => post('/api/product/deleteCartoon',data)
+// 修改漫画列表
+export const updateList = (data) => post('/api/product/editCartoon',data)
+

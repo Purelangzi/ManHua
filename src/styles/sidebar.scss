@@ -27,6 +27,11 @@
 
     .scrollbar-wrapper {
       overflow-x: hidden !important;
+      // 解决侧边菜单栏折叠后多出空白滚动条
+      &.el-scrollbar__wrap {
+        margin-bottom: -22px !important;
+        margin-right: -23px !important;
+      }
     }
 
     .el-scrollbar__bar.is-vertical {

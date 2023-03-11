@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { MessageBox, Message } from 'element-ui'
+import { Message } from 'element-ui'
 import store from '@/store'
 import { getToken } from '@/utils/auth'
 import qs from 'qs'
@@ -31,16 +31,13 @@ service.interceptors.request.use(
 // 相应拦截器
 service.interceptors.response.use(
   response => {
-    const res = response.data
-    if (res.code !== 200) {
-      Message({
-        message: res.msg || '失败',
-        type: 'error',
-        duration: 5 * 1000
-      })
-      return Promise.reject(new Error(res.msg || 'Error'))
+    const res = response.data;
+    const code = response.status;
+    // HTTP 状态码>=200且<300表示成功；>=400且<=500为客户端错误；>500为服务端错误
+    if ((code >= 200 && code < 300) || code === 304) {
+      return Promise.resolve(res);
     } else {
-      return res
+      return Promise.reject(res.msg || 'Errow');
     }
   },
   error => {
@@ -48,7 +45,11 @@ service.interceptors.response.use(
     switch (error.response.status) {
       // 401:表示Token 过期
       case 401:
-        Message.error(error.response.data.msg)
+        Message({
+          message:error.response.data.msg,
+          type:'error',
+          duration: 5 * 1000
+        })
         store.dispatch('user/resetToken').then(() => {
           location.reload()
         })

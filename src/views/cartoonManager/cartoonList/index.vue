@@ -1,6 +1,87 @@
 <template>
   <div>
-     
+    <div class="header">
+      <div class="search">
+          <el-form :model="Searchform" ref="Searchform" label-width="80px" style="display: flex;">
+            <el-form-item label="漫画名称" style="min-width: 240px;">
+              <el-input v-model.trim="Searchform.name" placeholder="请输入搜索的内容"></el-input>
+            </el-form-item>
+            <el-form-item >
+              <el-button type="primary" @click="onSeach" v-show="isBtnDisabled" size="medium">搜索</el-button>
+              <el-button type="warning " @click="onReturn" v-show="!isBtnDisabled" size="medium">返回</el-button>
+              <el-button type="primary" @click="moreImport" size="medium">批量导入漫画</el-button>
+              <el-button type="primary" @click="oneClickImport" size="medium">一键导入章节列表</el-button>
+              <el-button type="danger " @click="moreDelete" size="medium">批量删除</el-button>
+              <el-button type="danger " @click="moreModify" size="medium">批量修改分类</el-button>
+            </el-form-item>
+          </el-form>
+        </div>
+      <el-dialog
+        title="批量修改分类"
+        :visible.sync="dialogVisible"
+        width="30%"
+        :before-close="closeMoreUpdateCtDialog">
+        <el-select v-model="selectMoreUpdateCtId" placeholder="分类名称">
+          <el-option v-for="category in categoryData"
+            :key="category.id"
+            :label="category.name"
+            :value="category.id">
+          </el-option>
+        </el-select>
+        <span slot="footer">
+          <el-button @click="cancelMoreUpdate">取消</el-button>
+          <el-button type="primary" @click="moreUpdateCategory" :disabled="!selectMoreUpdateCtId">确定</el-button>
+        </span>
+      </el-dialog>
+      
+       <div class="log">
+        <el-form :model="logform" ref="Searchform"  label-width="80px" :inline="false">
+          <el-form-item label="执行日志">
+            <el-input type="textarea" resize="none" v-model="logform.data" disabled :rows="5"></el-input>
+          </el-form-item>
+        </el-form>
+        </div>
+    </div>
+    <div class="content">
+      <el-table v-show="listData.length" :data="listData" @selection-change="selectChange" ref="listTable" border height="540" size="medium">
+        <el-table-column type="index" label="序号">
+          <template v-slot="{$index}">
+            <span>{{ (page-1)*pageSize+($index+1) }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column type="selection" fixed="left"></el-table-column>
+        <div v-for="(col, index) in columns" :key="index">
+          <el-table-column v-if="col.isSlot" :label="col.label" align="center" show-overflow-tooltip>
+            <template v-slot="{row}">
+              <div v-if="col.prop == 'img_url'">
+                <el-image :src="row.img_url" fit="fill" style="width: 56px;height: 56px;"></el-image>
+              </div>
+              <div v-if="col.prop == 'charge'">
+                <el-tag  :type="row.charge==1?'danger':'success'" effect="dark">{{ row.charge==1?'收费':'不收费' }}</el-tag>
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column v-else :prop="col.prop" :label="col.label" align="center" show-overflow-tooltip></el-table-column>
+          
+        </div>
+        <el-table-column label="操作" align="center">
+          <template v-slot="{row}">
+            <el-button type="primary" icon="el-icon-edit" size="mini" @click="editList(row)">编辑</el-button>
+            <el-button type="danger" icon="el-icon-delete"  size="mini" @click="deleteList(row)">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <el-pagination
+        style="text-align: right;padding: 20px;"
+        @size-change="sizeChange"
+        @current-change="currentChange"
+        :current-page.sync="page"
+        :page-sizes="[20, 40, 80, 100]"
+        :page-size="pageSize"
+        layout="sizes, prev, pager, next, jumper, total"
+        :total="totalNum" background>
+      </el-pagination>
+    </div>
   </div>
 </template>
 
@@ -9,18 +90,197 @@ export default {
   name: 'cartoonList',
   data () {
     return {
-        
+      isBtnDisabled:true,
+      dialogVisible:false,
+      // 搜索表单
+      Searchform:{
+        name:''
+      },
+      // 日志表单
+      logform:{
+        data:''
+      },
+      // 列表数据
+      listData:[],
+      // 分类数据
+      categoryData:[],
+      // 已选择的多选框数据
+      selectListOption:[],
+      // 批量删除的id
+      ids:'',
+      // 已选择的批量修改的分类id
+      selectMoreUpdateCtId:'',
+      columns:[
+        {isSlot:false,prop:'name',label:'漫画名称'},
+        {isSlot:false,prop:'cartoon_introduction',label:'简介'},
+        {isSlot:true,prop:'img_url',label:'封面'},
+        {isSlot:false,prop:'read',label:'阅读量'},
+        {isSlot:false,prop:'fabulous',label:'点赞量'},
+        {isSlot:false,prop:'price',label:'价格'},
+        {isSlot:true,prop:'charge',label:'是否收费'},
+      ],
+      // 当前页
+      page:1,
+      // 每页显示的条数
+      pageSize:10,
+      // 总条数
+      totalNum:0
+
     }
   },
   mounted() {
-    
+    this.getList()
+    this.getCategory()
   },
   methods: {
-    
+    // 获取列表数据
+    async getList(){
+      const {page,pageSize} = this
+      const {name} = this.Searchform
+      const res = await this.$API['cartoon'].getList({page,pageSize,name})
+      if(res.code == 200){
+        this.listData = res.data.data
+        this.totalNum = res.data.total
+      }
+    },
+    // 获取分类数据
+    async getCategory(){
+      const res = await this.$API['cartoon'].getCategory({isAll:true})
+      if(res.code == 200){
+        this.categoryData = res.data.data
+      }
+    },
+
+    // 搜索
+    onSeach(){
+      if(!this.Searchform.name) return
+      this.getList()
+      this.isBtnDisabled = false
+
+    },
+    // 返回列表
+    onReturn(){
+      this.isBtnDisabled = true
+      this.Searchform.name = ''
+      this.getList()
+    },
+    // 批量导入
+    moreImport(){
+
+    },
+    // 一键导入章节列表
+    oneClickImport(){
+
+    },
+    // 多选框改变时
+    selectChange(selection){
+      this.selectListOption = selection
+    },
+    // 批量删除
+    moreDelete(){
+      if(!this.selectListOption.length){
+        this.$message.warning('请在下面选择要删除的列表')
+        return
+      }
+      // ids = '1,2,44'
+      this.ids = this.selectListOption.map(el=>el.id).join(',')
+      this.dropList(this.ids)
+    },
+    // 批量修改分类
+    moreModify(){
+      this.dialogVisible = true
+    },
+    // 确定批量修改分类
+    moreUpdateCategory(){
+      // 循环修改当前列表数据的分类id
+      this.listData.forEach(async(el)=>{
+        el.category_id = this.selectMoreUpdateCtId
+        try {
+          const {msg} = await this.$API.cartoon.updateList(el)
+          this.logform.data += `${el.name} ${msg}\n`
+        } catch (error) {
+          this.logform.data += '修改失败\n'
+        }
+      })
+      this.$message.success('当前页漫画的批量修改分类成功')
+      this.cancelMoreUpdate()
+    },
+    // 关闭批量修改分类对话框的回调
+    closeMoreUpdateCtDialog(done){
+      this.selectMoreUpdateCtId = ''
+      done()
+    },
+    // 取消批量修改分类
+    cancelMoreUpdate(){
+      this.selectMoreUpdateCtId = ''
+      this.dialogVisible = false
+    },
+
+
+    // 编辑列表
+    editList(row){
+
+    },
+    // 删除列表
+    async deleteList(row){
+      this.ids = row.id
+      this.dropList(this.ids,row.name)
+    },
+
+
+
+
+    // 删除方法
+    dropList(ids,name){
+      this.$confirm(`确定要${name?'删除 '+ name : '批量删除' } 吗?`, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(async() => {
+          const data = await this.$API.cartoon.deleteList({ids})
+          if(data.code == 200) this.$message.success('删除成功')
+          this.ids = ''
+          this.$refs.listTable.clearSelection()
+          this.page = 1
+          this.getList()
+        }).catch(() => {
+          this.$message.info('已取消删除')
+          this.ids = ''
+          this.$refs.listTable.clearSelection()
+        });
+     
+    },
+    // 每页显示的条数改变时
+    sizeChange(pageSize){
+      this.pageSize = pageSize
+      this.getList()
+    },
+    // 当前页改变时
+    currentChange(page){
+      this.page = page
+      this.getList()
+    }
   },
 }
 </script>
 
 <style lang='scss' scoped>
+.header{
+  display: flex;
+  justify-content: space-between;
+  margin: 20px;
+  padding-top: 20px;
+  border-bottom: 1px solid #ebeef5;
+  min-width: 850px;
+  background-color: #fff;
+  .log{
+    margin-right: 20px;
+    width: 600px;
+  }
+}
+.content{
+  margin: 20px;
+  background-color: #fff;
+}
 
 </style>
