@@ -39,10 +39,10 @@ export default {
       const {data} = await this.$API.home.getCartoonList({page,pageSize})
       data.data.forEach(el=>{
         // 2022-10-26T17:23:34.000Z
-        let strC = el.create_time.replace('T',' ')
-        let strU = el.update_time.replace('T',' ')
-        el.create_time = strC.replace('.000Z','')
-        el.update_time =strU.replace('.000Z','')
+        let strC = el.create_time?.replace('T',' ')
+        let strU = el.update_time?.replace('T',' ')
+        el.create_time = strC?.replace('.000Z','')
+        el.update_time =strU?.replace('.000Z','')
       })
       this.cartoonData = data.data
     },
