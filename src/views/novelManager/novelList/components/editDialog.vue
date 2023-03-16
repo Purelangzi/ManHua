@@ -3,7 +3,7 @@
     <el-tab-pane v-loading="loading" label="漫画详情" name="first">
       <div class="editContent">
         <div class="detail">
-          <el-image :src="editForm.img_url" fit="fill" class="detailImg" :lazy="true" ></el-image>
+          <el-image :src="editForm.cover_lateral" fit="fill" class="detailImg" ></el-image>
           <div class="dataRight">
             <h1>{{ editForm.name }}</h1>
             <div class="author">
@@ -30,7 +30,7 @@
               </div>
               <div class="text">
                 <span>是否收费:</span>
-                <el-select v-model="editForm.status"  class="inputText" size="mini">
+                <el-select v-model="editForm.status" class="inputText" size="mini">
                   <el-option v-for="item in statusArr"
                     :key="item.value"
                     :label="item.label"
@@ -46,7 +46,7 @@
             </div>
             <div class="introduce">
               <span>简介：</span>
-              <el-input type="textarea" v-model="editForm.cartoon_introduction" :rows="4"  placeholder="请输入简介内容" ></el-input>
+              <el-input type="textarea" v-model="editForm.intro" :rows="4"  placeholder="请输入简介内容" ></el-input>
               
             </div>
             <div class="handler">
@@ -61,10 +61,6 @@
     </el-tab-pane>
     <el-tab-pane label="添加章节" name="second">
       <div class="chapterContainer">
-        <el-upload action="#" list-type="picture-card" :before-upload="beforeAvatarUpload" :on-error="imgSaveToUrl">
-          <i v-if="!chapterImg" class="el-icon-plus avatar-uploader-icon"></i>
-          <img v-else :src="chapterImg" style="width: 148px;height: 170px;">
-        </el-upload>
         <el-form :model="chapterForm" ref="chapterForm" :rules="chapterRules" label-width="80px" :inline="true" class="chapterForm">
           <el-form-item label="章节名称" prop="title">
             <el-input v-model="chapterForm.title" placeholder="请输入章节名称"></el-input>
@@ -81,18 +77,9 @@
               </el-option>
             </el-select>
           </el-form-item>
-          <el-form-item v-show="chapterForm.is_vip==1" label="价格" prop="price">
-            <el-input v-model="chapterForm.price"></el-input>
-          </el-form-item>
           <div class="saveAndImport">
-            <el-button type="primary" @click="onSaveChapter" style="margin-right: 15px;">保存章节</el-button>
-            <el-upload action="https://jsonplaceholder.typicode.com/posts/" accept=".xls,.xlsx"
-            :on-change="importExcChapter"
-            :show-file-list="false"
-            :auto-upload="false"
-            >
-              <el-button>批量导入章节</el-button>
-            </el-upload>
+            <el-button type="primary" @click="onSaveChapter" style="margin-right: 15px;" size="medium">保存章节</el-button>
+            <el-button type="primary" @click="getMoreNewChapter" style="margin-right: 15px;" size="medium">一键获取最新章节</el-button>
           </div>
         </el-form>
         <div class="log">
@@ -102,7 +89,7 @@
       </div>
     </el-tab-pane>
 
-    <!-- 连载 -->
+
     <div class="chapterList">
       <div class="chapterTitle">
         <div class="series">
@@ -118,15 +105,14 @@
       </div>
     </div>
   </el-tabs>
-
 </template>
 
 <script>
-import {ImportXlsx} from '@/utils/file'
 export default {
   name: 'editDialog',
   props:['detailId','categoryData'],
   data () {
+    
     return {
       activeName:'first',
       loading:true,
@@ -143,11 +129,9 @@ export default {
       chapterImg:'',
       chapterForm:{
         comic_id:this.detailId,// 漫画id,父级id
-        cover:'', // 封面
         title:'', // 章节名称
         title_alias:1, // 章节别名
         is_vip:0, // 是否付费0/1
-        price:0,
       },
       logData:'',
       chapterRules:{
@@ -162,14 +146,14 @@ export default {
     seriesDate(){
       let strC = this.chapterList[0]?.create_time?.replace('T',' ')
       return strC?.replace('.000Z','')
-    },
+    }
   },
 
   methods: {
     // 根据传过来的id获取漫画详情
     async getDetail(){
       if(!this.id) return
-      const res = await this.$API.cartoon.getDetail({id:this.id})
+      const res = await this.$API.novel.getDetail({id:this.id})
       if(res.code == 200){
         this.editForm = res.data
       }
@@ -178,20 +162,19 @@ export default {
     // 根据id获取漫画章节列表
     async getChapterList(){
       if(!this.id) return
-      const res = await this.$API.cartoon.getChapterList({comic_id:this.id,isAll:true})
+      const res = await this.$API.novel.getChapterList({comic_id:this.id,isAll:true})
       if(res.code==200){
         this.chapterList = res.data.data
       }
     },
-    // 保存漫画
+    // 保存小说
     async saveDetail(){
       const {editForm} = this
-      const res = await this.$API.cartoon.updateList(editForm)
+      const res = await this.$API.novel.updateList(editForm)
       if(res.code == 200){
         this.$message.success(`${res.msg}`)
       } 
     },
-
     // 上传漫画封面前的回调,检查格式，实时预览
     beforeAvatarUpload(file){
       try {
@@ -214,7 +197,7 @@ export default {
           let txt = e.target.result
           // 预览图片
           if(this.activeName == 'first'){
-            this.editForm.img_url = txt
+            this.editForm.cover_lateral = txt
           }else{
             this.chapterImg = txt
           } 
@@ -224,7 +207,7 @@ export default {
         
       }
     },
-    // 上传失败的回调才上传漫画封面
+    // 上传失败的回调才上传小说封面
     async imgSaveToUrl(error,file){
       try {
         // 创建一个表单对象
@@ -236,7 +219,7 @@ export default {
           if(this.chapterImg){
             this.chapterImg = res.data.url
           }else{
-            this.editForm.img_url = res.data.url
+            this.editForm.cover_lateral = res.data.url
           }
           this.$message.success(res.msg)
         }else{
@@ -250,7 +233,7 @@ export default {
     onSaveChapter(){
       this.$refs.chapterForm.validate(async(valid) => {
         if(valid){
-          const res = await this.$API.cartoon.addChapter(this.chapterForm)
+          const res = await this.$API.novel.addChapter(this.chapterForm)
           if(res.code == 200){
             this.$message.success(`${res.msg}`)
             this.getDetail()
@@ -261,61 +244,11 @@ export default {
         }
       })
     },
-    // 批量导入章节
-    async importExcChapter(file){
-      this.logData = ''
-      try {
-        let res = await ImportXlsx(file)
-        let head = {
-          章节名称: 'title',
-          封面: 'cover',
-          章节别名: 'title_alias',
-          价格: 'price',
-          是否vip: 'is_vip',
-          上家ID: 'platform_chapter',
-          上家漫画ID:'comicId'
-        }
-        const list = res.map(item=>{
-          let obj = {}
-          for (const k in item) {
-           if(head[k]){
-            obj[head[k]] = item[k]
-           }
-          }
-          return obj
-        })
-        const listLength = list.length
-        console.log(list[0].comicId,this.editForm.platform_comi);
-        if(list[0].comicId !==this.editForm.platform_comic){
-          this.$message.warning(`当前要批量导入的章节不属于 ${this.editForm.title} 漫画`)
-          return
-        }
+    
+    // 一键获取最新章节
+    getMoreNewChapter(){
 
-        for (let i = 0; i < list.length; i++) {
-          const item = list[i]
-          // 浅拷贝,准备请求对象
-          let params = {...item}
-          // 请求对象添加章节所属漫画的id并赋值
-          params.comic_id = this.detailId
-          // 删除比较的请求参数
-          delete params.comicId
-          const res = await this.$API.cartoon.addChapter(params)
-          if(res.code == 200){
-            this.logData = `${i+1}/${listLength}导入成功\n`+this.logData
-          }else{
-            this.logData = `${i+1}/${listLength}导入失败,${res.msg}\n`+this.logData
-          }
-        }
-       
-      } catch (error) {
-        this.logData = `导入失败\n`+this.logData
-      }
-      this.logData += `导入完成\n`
-      this.getDetail()
-      this.getChapterList()
-      
     },
-
 
 
     // 倒叙
@@ -332,6 +265,17 @@ export default {
         this.id = newVal
         this.getDetail()
         this.getChapterList()
+
+      }
+    },
+    // 解决接口返回category_id都是1与分类差距2的问题
+    'editForm':{
+      handler(){
+        // 必须存在，不然关掉对话框还留存属性，必须等于1不然批量修改分类不对
+        if(this.editForm.category_id&&this.editForm.category_id == 1){
+          this.editForm.category_id += 2
+        }
+        
       }
     }
   },
@@ -450,6 +394,5 @@ export default {
     }
   }
 }
-
 
 </style>

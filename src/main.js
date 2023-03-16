@@ -14,6 +14,9 @@ import router from './router'
 
 import '@/icons' // icon
 import '@/permission' // permission control
+
+
+import * as API from '@/api'
 // 引入抽离出来的全局公共组件
 import categorySearch from '@/components/categorySearch'
 import categoryTable from '@/components/categoryTable'
@@ -38,7 +41,8 @@ Vue.component('categoryDialog',categoryDialog)
 // Vue.use(ElementUI, { locale })
 // 如果想要中文版 element-ui，按如下方式声明
 Vue.use(ElementUI)
-import * as API from '@/api'
+
+
 Vue.prototype.$API = API
 Vue.config.productionTip = false
 new Vue({

@@ -1,13 +1,13 @@
 <template>
 
 <div class="catoonTable">
-    <el-table :data="categoryData" border stripe height="650">
+    <el-table :data="categoryData" border  v-loading="loading" height="650">
         <el-table-column label="序号" type="index" width="100" align="center">
         </el-table-column>
         <el-table-column label="分类名称" prop="name">
         </el-table-column>
         <el-table-column label="封面">
-            <el-image :src="defaultCategoryImg" style="width: 56px;height: 56px;" fit="fill"></el-image>
+            <el-image :src="defaultCategoryImg" style="width: 56px;height: 56px;" fit="fill" :lazy="true"></el-image>
         </el-table-column>
         <el-table-column label="创建时间" prop="create_time" align="center">
         </el-table-column>
@@ -46,9 +46,10 @@ export default {
   },  
   data () {
     return {
-        defaultCategoryImg,
-        categoryData:[],
-        params:{}
+      loading:true,
+      defaultCategoryImg,
+      categoryData:[],
+      params:{}
     }
   },
   mounted() {
@@ -60,6 +61,7 @@ export default {
       const {categoryName,params} = this
       const {data} = await this.$API[categoryName].getCategory(params)
       this.categoryData = data.data
+      this.loading = false
     },
     // 触发父组件发送修改分类的事件，并把对应行的数据传递
     updateCategory(row){

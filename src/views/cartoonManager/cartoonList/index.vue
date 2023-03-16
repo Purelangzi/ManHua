@@ -4,10 +4,10 @@
       <div class="search">
         <el-form :model="Searchform" ref="Searchform" label-width="80px" style="display: flex;" :inline=true>
           <el-form-item label="漫画名称" style="min-width: 240px; display: flex;">
-            <el-input v-model.trim="Searchform.name" placeholder="请输入搜索的内容"></el-input>
+            <el-input v-model.trim="Searchform.name" @keyup.enter.native="onSeach" placeholder="请输入搜索的内容"></el-input>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="onSeach" v-show="isBtnDisabled" size="medium">搜索</el-button>
+            <el-button type="primary" @click="onSeach"  v-show="isBtnDisabled" size="medium">搜索</el-button>
             <el-button type="warning " @click="onReturn" v-show="!isBtnDisabled" size="medium">返回</el-button>
           </el-form-item>
           
@@ -34,7 +34,7 @@
             :show-file-list="false"
             :auto-upload="false"
           >
-          <el-button type="primary" size="medium">一键导入章节列表</el-button>
+          <el-button type="primary" size="medium">一键导入当前漫画列表的章节列表</el-button>
           </el-upload>
           
           <el-button type="danger " @click="moreDelete" size="medium">批量删除</el-button>
@@ -72,8 +72,8 @@
         </div>
     </div>
     <div class="content">
-      <el-table :data="listData" @selection-change="selectChange" ref="listTable" border height="540" size="medium">
-        <el-table-column type="index" label="序号">
+      <el-table v-loading="loading" :data="listData" @selection-change="selectChange" ref="listTable" border height="540" size="medium">
+        <el-table-column type="index" label="序号" width="60" align="center">
           <template v-slot="{$index}">
             <span>{{ (page-1)*pageSize+($index+1) }}</span>
           </template>
@@ -101,9 +101,9 @@
         </el-table-column>
       </el-table>
 
-      <el-dialog :visible.sync="dialogEditVisible" @close="handlerClose" width="65%">
+      <el-dialog :visible.sync="dialogEditVisible" @close="handlerClose" :close-on-press-escape="false" :close-on-click-modal="false" width="65%">
 
-        <editDialog v-show="detailId"  :detailId="detailId" :categoryData="categoryData"/>
+        <editDialog ref="editDialog" v-show="detailId"  :detailId="detailId" :categoryData="categoryData"/>
       </el-dialog>
       
       
@@ -129,6 +129,7 @@ export default {
   components:{editDialog},
   data () {
     return {
+      loading:true,
       isBtnDisabled:true,
       dialogVisible:false,
       dialogEditVisible:false,
@@ -186,6 +187,7 @@ export default {
         this.listData = res.data.data
         this.totalNum = res.data.total
       }
+      this.loading = false
 
     },
     // 获取分类数据
@@ -201,6 +203,7 @@ export default {
       if(!this.Searchform.name) return
       this.getList()
       this.isBtnDisabled = false
+      this.Searchform.name=''
 
     },
     // 返回列表
@@ -244,19 +247,20 @@ export default {
         console.log(list,'list');
 
         this.logform.data = `开始导入漫画\n`
-        list.forEach(async (el,index)=>{
-          // 添加分类id
-          el.category_id = this.categoryData[0].id
-          const res = await this.$API.cartoon.addList(el)
+        // forEach里的await是并行的
+        for (let i = 0; i < list.length; i++) {
+          const item = list[i]
+          item.category_id = this.categoryData[0].id
+          const res = await this.$API.cartoon.addList(item)
           if(res.code == 200){
-            this.logform.data += `${index+1}/${listLength}\n` 
+            this.logform.data = `${i+1}/${listLength}\n`+this.logform.data
           }else{
-            this.logform.data += `${index+1}/${listLength},${res.msg}\n`
+            this.logform.data = `${i+1}/${listLength},${res.msg}\n`+this.logform.data
           }
-        })
-        this.logform.data += `导入完成\n` 
+        }
+        this.logform.data = `导入完成\n`+this.logform.data
       } catch (error) {
-        this.logform.data += `导入失败\n`
+        this.logform.data = `导入失败\n`+this.logform.data
       }
       this.getList()
     },
@@ -284,37 +288,47 @@ export default {
           }
           return obj
         })
-        console.log(list);
-        console.log(this.listData);
         if (this.listData.length == 0) {
-          this.logform.data += `漫画信息匹配失败，请检查是否存在漫画信息\n`
+          this.logform.data = `漫画信息匹配失败，请检查是否存在漫画信息\n`+this.logform.data
           return
         }
-        this.logform.data = `开始导入章节\n`
-        this.listData.forEach((el,index)=>{
-          list.forEach(async item=>{
-            
-            // 章节所属的漫画id是否等于当前页面已有的十个漫画的id
-            if(item.comicId == el.platform_comic){
+        
+        const listLength = list.length
+        
+        for (let i = 0; i < this.listData.length; i++) {
+          const item = this.listData[i];
+          const flag = list.some(el=>el.comicId==item.platform_comic)
+          if(!flag){
+            this.$notify({
+              title: '警告',
+              message: '当前导入的章节列表不属于当前漫画列表的任何一个漫画,导入失败',
+              type: 'warning'
+            });
+            return
+          }
+          this.logform.data = `开始导入章节\n`
+          for (let index = 0; index < list.length; index++) {
+            const el = list[index];
+            // 章节所属的漫画id是否等于当前漫画列表已有的十个漫画的id
+            if(el.comicId == item.platform_comic){
               // 浅拷贝,准备请求对象
-              let params = {...item}
+              let params = {...el}
               // 请求对象添加章节所属漫画的id并赋值
-              params.comic_id = el.id
-              // 删除错误的请求参数
+              params.comic_id = item.id
+              // 删除比较的请求参数
               delete params.comicId
-              console.log(params);
               const res = await this.$API.cartoon.addChapter(params)
               if(res.code == 200){
-                this.logform.data += `${index+1}漫画章节导入成功\n` 
+                this.logform.data = `${index+1}/${listLength}漫画章节导入成功\n`+this.logform.data
               }else{
-                this.logform.data += `${index+1}漫画章节导入失败}\n`
+                this.logform.data = `${index+1}/${listLength}漫画章节导入失败,${res.msg}\n`+this.logform.data
               }
             }
-          })
-          this.logform.data += `第${index+1}漫画章节导入完毕\n`
-        })
+          }
+          this.logform.data = `第${index+1}漫画章节导入完毕\n`+this.logform.data
+        }
       } catch (error) {
-        this.logform.data += `导入失败\n`
+        this.logform.data = `导入失败\n`+this.logform.data
       }
      
     },
@@ -378,6 +392,7 @@ export default {
     handlerClose(){
       this.detailId = ''
       this.dialogEditVisible = false
+      Object.assign(this.$refs.editDialog.$data,this.$refs.editDialog.$options.data())
     },
 
 
