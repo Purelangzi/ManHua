@@ -3,7 +3,8 @@
     <el-tab-pane v-loading="loading" label="漫画详情" name="first">
       <div class="editContent">
         <div class="detail">
-          <el-image :src="editForm.cover_lateral" fit="fill" class="detailImg" ></el-image>
+
+          <el-image v-if="editForm.cover_lateral" :src="editForm.cover_lateral" fit="fill" class="detailImg" lazy ></el-image>
           <div class="dataRight">
             <h1>{{ editForm.name }}</h1>
             <div class="author">
@@ -79,7 +80,7 @@
           </el-form-item>
           <div class="saveAndImport">
             <el-button type="primary" @click="onSaveChapter" style="margin-right: 15px;" size="medium">保存章节</el-button>
-            <el-button type="primary" @click="getMoreNewChapter" style="margin-right: 15px;" size="medium">一键获取最新章节</el-button>
+            <el-button type="primary" @click="getMoreNewChapter" :disabled="newChapterBtn" style="margin-right: 15px;" size="medium">一键获取最新章节</el-button>
           </div>
         </el-form>
         <div class="log">
@@ -118,22 +119,23 @@ export default {
       loading:true,
       statusArr:[{label:'收费',value:1},{label:'免费',value:0}],
       statusArrOther:[{label:'收费',value:1},{label:'免费',value:0}],
-      // 漫画id
+      // 小说id
       id:undefined,
-      // 漫画详情表单
+      // 小说详情表单
       editForm:{},
-      // 漫画章节列表
+      // 小说章节列表
       chapterList:[],
       // 倒叙还是顺序
       isFlashBack:true,
       chapterImg:'',
       chapterForm:{
-        comic_id:this.detailId,// 漫画id,父级id
+        comic_id:this.detailId,// 小说id,父级id
         title:'', // 章节名称
         title_alias:1, // 章节别名
         is_vip:0, // 是否付费0/1
       },
       logData:'',
+      newChapterBtn:false,
       chapterRules:{
         title: [{ required: true, message: '章节名称不能为空',trigger: 'change'}],
         title_alias: [{required: true,message: '章节别名不能为空',trigger: 'change'}]
@@ -172,7 +174,10 @@ export default {
       const {editForm} = this
       const res = await this.$API.novel.updateList(editForm)
       if(res.code == 200){
-        this.$message.success(`${res.msg}`)
+        this.$message.success(res.msg)
+        this.$emit('getList')
+      }else{
+        this.$message.error(res.msg)
       } 
     },
     // 上传漫画封面前的回调,检查格式，实时预览
@@ -245,9 +250,38 @@ export default {
       })
     },
     
-    // 一键获取最新章节
-    getMoreNewChapter(){
-
+    // 一键获取最新章节并上传最新章节
+    async getMoreNewChapter(){
+      const params = {
+        pageId:this.editForm.pageId,
+        comicId:this.editForm.platform_comic,
+        type:1
+      }
+      this.newChapterBtn = true
+      const res = await this.$API.common.queryNovelDetail(params)
+      console.log(res.code);
+      if(res.code==200){
+        this.logData = `开始上传章节...`
+        const chapterLength = res.data.length
+        for (let index = 0; index < res.data.length; index++) {
+          const item = res.data[index];
+          item.comic_id = this.editForm.id
+          delete item.platform_comic
+          const res1 = await this.$API.novel.addChapter(item)
+          if (res1.code == 200) {
+            this.logData = `${index + 1}/${chapterLength}导入成功\n` + this.logData
+          } else {
+            this.logData = `${index + 1}/${chapterLength}导入失败,${res1.msg}\n` + this.logData
+          }
+          
+        }
+        this.logData = `导入完成\n` + this.logData
+        this.getDetail()
+        this.getChapterList()
+      }else{
+        this.$message.error('IP限制')
+      }
+      this.newChapterBtn = false
     },
 
 

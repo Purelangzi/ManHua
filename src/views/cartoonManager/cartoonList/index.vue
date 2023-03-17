@@ -101,9 +101,8 @@
         </el-table-column>
       </el-table>
 
-      <el-dialog :visible.sync="dialogEditVisible" @close="handlerClose" :close-on-press-escape="false" :close-on-click-modal="false" width="65%">
-
-        <editDialog ref="editDialog" v-show="detailId"  :detailId="detailId" :categoryData="categoryData"/>
+      <el-dialog :visible.sync="dialogEditVisible" :before-close="handlerClose" :close-on-press-escape="false" :close-on-click-modal="false" width="65%">
+        <editDialog ref="editDialog" v-show="detailId"  :detailId="detailId" :categoryData="categoryData" @getList="getList()" />
       </el-dialog>
       
       
@@ -388,11 +387,20 @@ export default {
       this.ids = row.id
       this.dropList(this.ids,row.name)
     },
-    // 漫画详情对话框关闭的回调
-    handlerClose(){
+    // 漫画详情对话框关闭前的回调
+    handlerClose(done){
+      // 清除子组件检验规则
+      this.$refs.editDialog.$refs.chapterForm.clearValidate()
       this.detailId = ''
       this.dialogEditVisible = false
-      Object.assign(this.$refs.editDialog.$data,this.$refs.editDialog.$options.data())
+      // 重置子组件数据
+      Object.assign(this.$refs.editDialog.$data.chapterForm,this.$refs.editDialog.$options.data().chapterForm)
+      this.$refs.editDialog.activeName = 'first'
+      this.$refs.editDialog.loading = true
+      this.$refs.editDialog.logData = ''
+      this.$refs.editDialog.editForm = {}
+      this.$refs.editDialog.chapterList = []
+      done()
     },
 
 

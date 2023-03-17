@@ -89,9 +89,9 @@
         </el-table-column>
       </el-table>
 
-      <el-dialog :visible.sync="dialogEditVisible" @close="handlerClose" :close-on-press-escape="false" :close-on-click-modal="false" width="65%">
+      <el-dialog :visible.sync="dialogEditVisible" :before-close="handlerClose" :close-on-press-escape="false" :close-on-click-modal="false" width="65%">
 
-        <editDialog ref="editDialog" v-show="detailId"  :detailId="detailId" :categoryData="categoryData"/>
+        <editDialog ref="editDialog" v-show="detailId"  :detailId="detailId" :categoryData="categoryData" @getList="getList()"/>
       </el-dialog>
       
       
@@ -237,7 +237,7 @@ export default {
           if(!flag){
             this.$notify({
               title: '警告',
-              message: '当前导入的章节列表不属于当前漫画列表的任何一个漫画,导入失败',
+              message: '当前导入的章节列表不属于当前小说列表的任何一个小说,导入失败',
               type: 'warning'
             });
             return
@@ -245,7 +245,7 @@ export default {
           this.logform.data = `开始导入章节\n`
           for (let index = 0; index < list.length; index++) {
             const el = list[index];
-            // 章节所属的小说id是否等于当前小说列表已有的十个漫画的id
+            // 章节所属的小说id是否等于当前小说列表已有的十个小说的id
             if(el.comicId == item.platform_comic){
               // 浅拷贝,准备请求对象
               let params = {...el}
@@ -325,10 +325,18 @@ export default {
       this.dropList(this.ids,row.name)
     },
     // 漫画详情对话框关闭的回调
-    handlerClose(){
+    handlerClose(done){
+      // 清除子组件检验规则
+      this.$refs.editDialog.$refs.chapterForm.clearValidate()
       this.detailId = ''
       this.dialogEditVisible = false
-      Object.assign(this.$refs.editDialog.$data,this.$refs.editDialog.$options.data())
+      Object.assign(this.$refs.editDialog.$data.chapterForm,this.$refs.editDialog.$options.data().chapterForm)
+      this.$refs.editDialog.activeName = 'first'
+      this.$refs.editDialog.loading = true
+      this.$refs.editDialog.logData = ''
+      this.$refs.editDialog.editForm = {}
+      this.$refs.editDialog.chapterList = []
+      done()
     },
 
 

@@ -68,7 +68,8 @@ div:focus {
 }
 ::-webkit-scrollbar 
 { 
-  width: 5px; 
+  width: 5px;
+  height: 5px;
 }
  
 /*定义滚动条轨道*/ 
@@ -81,7 +82,7 @@ div:focus {
 ::-webkit-scrollbar-thumb 
 { 
   border-radius: 10px; 
-  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3); 
-  background-color: rgba(0,0,0,0.1);
+  background:#ddd;
+  -webkit-box-shadow: inset 0 0 6px #e4e4e4; 
 } 
  
