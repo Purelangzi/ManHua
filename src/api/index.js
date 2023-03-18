@@ -3,6 +3,7 @@ import * as cartoon from './cartoon'
 import * as novel from './novel'
 import * as video from './video'
 import * as common from './common'
+import * as system from './system'
 
 
 export {
@@ -10,5 +11,6 @@ export {
     cartoon,
     novel,
     video,
-    common
+    common,
+    system
 }

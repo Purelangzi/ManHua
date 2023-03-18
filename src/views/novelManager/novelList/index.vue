@@ -141,7 +141,7 @@ export default {
       ids:'',
       // 已选择的批量修改的分类id
       selectMoreUpdateCtId:'',
-      // 当前选择的漫画id，
+      // 当前选择的小说id，
       detailId:'',
       columns:[
         {isSlot:false,prop:'name',label:'小说名称'},

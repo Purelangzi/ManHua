@@ -73,13 +73,32 @@ const computedAsyncRoutes = (asyncRoutes,menus) =>{
 }
 const actions = {
   // 用户登录
-  login({ commit,dispatch,state}, userInfo) {
-    
+  async login({ commit,dispatch,state}, userInfo) {
     const { account, password } = userInfo
-    
-    return new Promise((resolve, reject) => {
+    try {
+      const res = await login({account, password})
+      if(res.code !==200){
+        throw new Error(res.msg)
+      }
+      const { data } = res
+      commit('SET_TOKEN', data.token)
+      commit('SET_USERINFO',data.userInfo)
+      commit('SET_MENU',data.menus)
+      localStorage.setItem('isAddRoutes','0')
+      localStorage.setItem('isDefaultRoutes',false)
+
+      // 添加动态路由
+      dispatch('addRoutes')
+      setToken(data.token)
+      setUserInfo(data.userInfo)
+      setMenus(data.menus)
+    } catch (error) {
+      throw new Error(error.message)
+    }
+    /* return new Promise((resolve, reject) => {
       login({ account: account.trim(), password: password }).then(response => {
         const { data } = response
+        
         commit('SET_TOKEN', data.token)
         commit('SET_USERINFO',data.userInfo)
         commit('SET_MENU',data.menus)
@@ -92,10 +111,10 @@ const actions = {
         setUserInfo(data.userInfo)
         setMenus(data.menus)
         resolve()
-      }).catch(error => {
+      }).catch((error) => {
         reject(error)
       })
-    })
+    }) */
   },
   // 添加动态路由
   addRoutes({commit,state}){
@@ -119,7 +138,14 @@ const actions = {
 
   async register({commit},userInfo) {
     const {account,password,username} = userInfo
-    await register({account,password,username})
+    try {
+      const res = await register({account,password,username})
+      if(res.code !==200){
+        throw new Error(res.msg)
+      }
+    } catch (error) {
+      throw new Error(error.message)
+    }
   },
 
   // remove token

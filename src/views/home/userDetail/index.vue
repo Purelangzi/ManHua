@@ -1,10 +1,10 @@
 <template>
   <div class="userDetail">
     <div class="userImg">
-        <img :src="userInfo.avatar?userInfo.avatar:defaultUserimg">
+        <img :src="userInfo&&userInfo.avatar?userInfo.avatar:defaultUserimg">
     </div>
      <div class="userInfo">
-        <h3>欢迎{{ userInfo.username }},请开始你的工作吧！</h3>
+        <h3>欢迎{{ userInfo&&userInfo.username }},请开始你的工作吧！</h3>
      </div>
   </div>
 </template>

@@ -25,7 +25,6 @@ router.beforeEach(async(to, from, next) => {
       next({ path: '/' })
       NProgress.done()
     } else {
-      
       let userInfo = JSON.parse(JSON.stringify(store.getters.userInfo))
       if(typeof userInfo =='string'){
         userInfo = JSON.parse(userInfo)

@@ -66,7 +66,6 @@
 export default {
   name: 'Login',
   data() {
-
     return {
       loginForm: {
         username:'',
@@ -117,7 +116,9 @@ export default {
             this.$router.push({ path: isLogin?this.redirect || '/':'/login'})
             this.isLogin = !this.isLogin
             this.reset()
-          }).catch(() => {
+          }).catch((error) => {
+            this.$message.error(error.message)
+            this.loginForm.password = ''
             this.loading = false
           })
         } else {

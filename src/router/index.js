@@ -7,28 +7,43 @@ Vue.use(Router)
 import Layout from '@/layout'
 
 /**
- * Note: sub-menu only appear when route children.length >= 1
- * Detail see: https://panjiachen.github.io/vue-element-admin-site/guide/essentials/router-and-nav.html
- *
- * hidden: true                   if set true, item will not show in the sidebar(default is false)
- * alwaysShow: true               if set true, will always show the root menu
- *                                if not set alwaysShow, when item has more than one children route,
- *                                it will becomes nested mode, otherwise not show the root menu
- * redirect: noRedirect           if set noRedirect will no redirect in the breadcrumb
- * name:'router-name'             the name is used by <keep-alive> (must set!!!)
- * meta : {
-    roles: ['admin','editor']    control the page roles (you can set multiple roles)
-    title: 'title'               the name show in sidebar and breadcrumb (recommend set)
-    icon: 'svg-name'/'el-icon-x' the icon show in the sidebar
-    breadcrumb: false            if set false, the item will hidden in breadcrumb(default is true)
-    activeMenu: '/example/list'  if set path, the sidebar will highlight the path you set
-  }
+ *注意：子菜单仅在路由子项时显示。长度>=1
+
+*详细信息请参阅：https://panjiachen.github.io/vue-element-admin-site/guide/essentials/router-and-nav.html
+
+*
+
+*hidden:true如果设置为true，项目将不会显示在侧边栏中（默认为false）
+
+*alwaysShow:true如果设置为true，将始终显示根菜单
+
+*如果不设置alwaysShow，当项目有多个子路由时，
+
+*它将变为嵌套模式，否则不显示根菜单
+
+*redirect:noRedirect如果设置为noRedirect，则面包屑中不会重定向
+
+*name：'router-name'＜keep-alive＞使用的名称（必须设置！！！）
+
+*meta：{
+
+roles：['admin'，'editor']控制页面角色（可以设置多个角色）
+
+title：“title”显示在侧边栏和面包屑中的名称（推荐集）
+
+icon:“svg名称”/“l-icon-x”图标显示在侧边栏中
+
+breadcrumb：false如果设置为false，则该项将隐藏在breadcrump中（默认值为true）
+
+activeMenu:'/example/list'如果设置了路径，侧边栏将突出显示您设置的路径
+
+}
  */
 
 /**
- * constantRoutes
- * a base page that does not have permission requirements
- * all roles can be accessed
+ * 常量路由
+*没有权限要求的基页
+*所有角色都可以访问
  */
 export const constantRoutes = [
   {
@@ -96,6 +111,27 @@ export const asyncRoutes = [
     ]
   },
   {
+    path: '/systemManager',
+    name: '系统管理',
+    component: Layout,
+    redirect: '/systemManager',
+    meta: {title:'系统管理',icon: 'manager' },
+    children: [
+      {
+        path: '/account',
+        name: '账号管理',
+        meta: { title: '账号管理',icon:'manager' },
+        component: () => import('@/views/systemManager/account')
+      },
+      {
+        path: '/role',
+        name: '角色管理',
+        meta: { title: '角色管理',icon:'manager' },
+        component: () => import('@/views/systemManager/role')
+      },
+    ]
+  },
+  {
     path: '/novelManager',
     name: '小说管理',
     component: Layout,
@@ -155,27 +191,7 @@ export const asyncRoutes = [
       }
     ]
   },
-  {
-    path: '/systemManager',
-    name: '系统管理',
-    component: Layout,
-    redirect: '/systemManager',
-    meta: {title:'系统管理',icon: 'manager' },
-    children: [
-      {
-        path: '/account',
-        name: '账号管理',
-        meta: { title: '账号管理',icon:'manager' },
-        component: () => import('@/views/systemManager/account')
-      },
-      {
-        path: '/role',
-        name: '账号管理',
-        meta: { title: '账号管理',icon:'manager' },
-        component: () => import('@/views/systemManager/role')
-      },
-    ]
-  },
+  
 ]
 export const anyRoutes = [{ path: '*', redirect: '/404', hidden: true }]
 
