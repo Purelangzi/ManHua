@@ -3,7 +3,6 @@
     <el-tab-pane v-loading="loading" label="漫画详情" name="first">
       <div class="editContent">
         <div class="detail">
-
           <el-image v-if="editForm.cover_lateral" :src="editForm.cover_lateral" fit="fill" class="detailImg" lazy ></el-image>
           <div class="dataRight">
             <h1>{{ editForm.name }}</h1>
@@ -52,8 +51,8 @@
             </div>
             <div class="handler">
               <el-button type="success" round @click="saveDetail" style="margin-right: 30px;">保存漫画</el-button>
-              <el-upload action="#" :before-upload="beforeAvatarUpload" :on-error="imgSaveToUrl">
-                <el-button type="primary " round>选择封面</el-button>
+              <el-upload action="#" :before-upload="beforeAvatarUpload" :show-file-list="false">
+                <el-button type="primary" round>选择封面</el-button>
               </el-upload>
             </div>
           </div>
@@ -127,7 +126,6 @@ export default {
       chapterList:[],
       // 倒叙还是顺序
       isFlashBack:true,
-      chapterImg:'',
       chapterForm:{
         comic_id:this.detailId,// 小说id,父级id
         title:'', // 章节名称
@@ -139,7 +137,9 @@ export default {
       chapterRules:{
         title: [{ required: true, message: '章节名称不能为空',trigger: 'change'}],
         title_alias: [{required: true,message: '章节别名不能为空',trigger: 'change'}]
-      }
+      },
+      // 临时上传的详情封面数据
+      editFileRaw:undefined
     }
   },
   mounted() {
@@ -171,6 +171,7 @@ export default {
     },
     // 保存小说
     async saveDetail(){
+      await this.imgUpload()
       const {editForm} = this
       const res = await this.$API.novel.updateList(editForm)
       if(res.code == 200){
@@ -182,16 +183,19 @@ export default {
     },
     // 上传漫画封面前的回调,检查格式，实时预览
     beforeAvatarUpload(file){
+      this.editFileRaw = file // 存储的临时详情图片数据
       try {
         // 判断图片类型
-        let typeArr = ['image/png','image/jpg','image/jpeg']
+        const typeArr = ['image/png','image/jpg','image/jpeg']
         const flag = typeArr.includes(file.type)
         const isLt2M = file.size / 1024 / 1024 < 2
         if (!flag) {
           this.$message.error('上传图片只能是 PNG、JPG、JPEG 格式!')
+          return false
         }
         if (!isLt2M) {
           this.$message.error('上传图片大小不能超过 2MB!')
+          return false
         }
 
         let reader = new FileReader()
@@ -201,39 +205,26 @@ export default {
           // 拿到上传文件后的url字符串base64编码
           let txt = e.target.result
           // 预览图片
-          if(this.activeName == 'first'){
-            this.editForm.cover_lateral = txt
-          }else{
-            this.chapterImg = txt
-          } 
+          this.editForm.cover_lateral = txt
         }
         return flag && isLt2M
-      } catch (error) {
-        
+      } catch (error) {  
       }
     },
-    // 上传失败的回调才上传小说封面
-    async imgSaveToUrl(error,file){
-      try {
-        // 创建一个表单对象
-        const formData = new FormData()
-        // 追加图片数据,files为请求参数名
-        formData.append('files',file.raw)
-        const res = await this.$API.common.uploadFile(formData)
-        if(res.code == 200){
-          if(this.chapterImg){
-            this.chapterImg = res.data.url
-          }else{
-            this.editForm.cover_lateral = res.data.url
-          }
-          this.$message.success(res.msg)
-        }else{
-          this.$message.error(res.msg)
-        }
-      } catch (error) {
+    // 上传小说封面到服务器
+    async imgUpload(){
+      // 创建一个表单对象
+      const formData = new FormData()
+      // 追加图片数据,files为请求参数名
+      formData.append('files',this.editFileRaw)
+      const res = await this.$API.common.uploadFile(formData)
+      if(res.code == 200){
+        // 替换回接口返回的url地址
+        this.editForm.cover_lateral = res.data.url
+      }else{
+        this.$message.error(res.msg)
       }
     },
-
     //保存章节
     onSaveChapter(){
       this.$refs.chapterForm.validate(async(valid) => {
@@ -250,6 +241,7 @@ export default {
       })
     },
     
+
     // 一键获取最新章节并上传最新章节
     async getMoreNewChapter(){
       const params = {
@@ -328,6 +320,9 @@ export default {
         height: 395px;
         border: 10px solid #fff;
         box-shadow: 0 1px 10px #0000001a;
+        ::v-deep img{
+          width: 295px;
+        }
       }
       .dataRight{
         margin-left: 35px;
@@ -428,5 +423,14 @@ export default {
     }
   }
 }
-
+::v-deep .el-upload-list__item{
+  display: none;
+  transition:none !important;
+  -webkit-transition:nonne !important;
+}
+::v-deep .el-upload-list__item-name{
+  display: none;
+  transition:none !important;
+  -webkit-transition:nonne !important;
+}
 </style>

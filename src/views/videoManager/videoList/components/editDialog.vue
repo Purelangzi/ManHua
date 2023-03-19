@@ -55,8 +55,8 @@
             </div>
             <div class="handler">
               <el-button type="success" round @click="saveDetail" style="margin-right: 30px;">保存视频</el-button>
-              <el-upload action="#" :before-upload="beforeAvatarUpload" :on-error="imgSaveToUrl">
-                <el-button type="primary " round>选择封面</el-button>
+              <el-upload action="#" :before-upload="beforeAvatarUpload" :show-file-list="false">
+                <el-button type="primary" round>选择封面</el-button>
               </el-upload>
             </div>
           </div>
@@ -130,7 +130,6 @@ export default {
       chapterList:[],
       // 倒叙还是顺序
       isFlashBack:true,
-      chapterImg:'',
       chapterForm:{
         comic_id:this.detailId,// 视频id,父级id
         title:'', // 视频名称
@@ -142,7 +141,9 @@ export default {
       chapterRules:{
         title: [{ required: true, message: '视频名称不能为空',trigger: 'blur'}],
         title_alias: [{required: true,message: '视频别名不能为空',trigger: 'blur'}]
-      }
+      },
+      // 临时上传的详情封面数据
+      editFileRaw:undefined
     }
   },
   mounted() {
@@ -174,6 +175,7 @@ export default {
     },
     // 保存视频
     async saveDetail(){
+      await this.imgUpload()
       const {editForm} = this
       const res = await this.$API.video.updateList(editForm)
       if(res.code == 200){
@@ -185,6 +187,7 @@ export default {
     },
     // 上传视频封面前的回调,检查格式，实时预览
     beforeAvatarUpload(file){
+      this.editFileRaw = file // 存储的临时详情图片数据
       try {
         // 判断图片类型
         let typeArr = ['image/png','image/jpg','image/jpeg']
@@ -192,9 +195,11 @@ export default {
         const isLt2M = file.size / 1024 / 1024 < 2
         if (!flag) {
           this.$message.error('上传图片只能是 PNG、JPG、JPEG 格式!')
+          return false
         }
         if (!isLt2M) {
           this.$message.error('上传图片大小不能超过 2MB!')
+          return false
         }
 
         let reader = new FileReader()
@@ -204,40 +209,29 @@ export default {
           // 拿到上传文件后的url字符串base64编码
           let txt = e.target.result
           // 预览图片
-          if(this.activeName == 'first'){
-            this.editForm.cover_lateral = txt
-          }else{
-            this.chapterImg = txt
-          } 
+          this.editForm.cover_lateral = txt
         }
         return flag && isLt2M
       } catch (error) {
         
       }
     },
-    // 上传失败的回调才上传视频封面
-    async imgSaveToUrl(error,file){
-      try {
-        // 创建一个表单对象
-        const formData = new FormData()
-        // 追加图片数据,files为请求参数名
-        formData.append('files',file.raw)
-        const res = await this.$API.common.uploadFile(formData)
-        if(res.code == 200){
-          if(this.chapterImg){
-            this.chapterImg = res.data.url
-          }else{
-            this.editForm.cover_lateral = res.data.url
-          }
-          this.$message.success(res.msg)
-        }else{
-          this.$message.error(res.msg)
-        }
-      } catch (error) {
+    // 上传视频封面到服务器
+    async imgUpload(){
+      // 创建一个表单对象
+      const formData = new FormData()
+      // 追加图片数据,files为请求参数名
+      formData.append('files',this.editFileRaw)
+      const res = await this.$API.common.uploadFile(formData)
+      if(res.code == 200){
+        // 替换回接口返回的url地址
+        this.editForm.cover_lateral = res.data.url
+      }else{
+        this.$message.error(res.msg)
       }
     },
 
-    //保存视频
+    //保存章节
     onSaveChapter(){
       this.$refs.chapterForm.validate(async(valid) => {
         if(valid){
@@ -430,5 +424,14 @@ export default {
     }
   }
 }
-
+::v-deep .el-upload-list__item{
+  display: none;
+  transition:none !important;
+  -webkit-transition:nonne !important;
+}
+::v-deep .el-upload-list__item-name{
+  display: none;
+  transition:none !important;
+  -webkit-transition:nonne !important;
+}
 </style>

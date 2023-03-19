@@ -15,8 +15,8 @@ const getDefaultState = () => {
     menus:getMenus(),
     // 判断是否已添加动态路由，0未添加,1已添加
     isAddRoutes:localStorage.getItem('isAddRoutes'),
+    // 判断是否已添加静态路由
     isDefaultRoutes:localStorage.getItem('isDefaultRoutes')||false
-
   }
 }
 
@@ -51,6 +51,7 @@ const mutations = {
     state.resultMenus = constantRoutes.concat(anyRoutes)
     resetRouter()
     router.addRoutes(state.resultMenus)
+    state.isDefaultRoutes = true
     localStorage.setItem('isDefaultRoutes',true)
   }
 }
@@ -67,8 +68,6 @@ const computedAsyncRoutes = (asyncRoutes,menus) =>{
         return true
       }
     })
-
-    
   })
 }
 const actions = {
@@ -95,26 +94,6 @@ const actions = {
     } catch (error) {
       throw new Error(error.message)
     }
-    /* return new Promise((resolve, reject) => {
-      login({ account: account.trim(), password: password }).then(response => {
-        const { data } = response
-        
-        commit('SET_TOKEN', data.token)
-        commit('SET_USERINFO',data.userInfo)
-        commit('SET_MENU',data.menus)
-        localStorage.setItem('isAddRoutes','0')
-        localStorage.setItem('isDefaultRoutes',false)
-
-        // 添加动态路由
-        dispatch('addRoutes')
-        setToken(data.token)
-        setUserInfo(data.userInfo)
-        setMenus(data.menus)
-        resolve()
-      }).catch((error) => {
-        reject(error)
-      })
-    }) */
   },
   // 添加动态路由
   addRoutes({commit,state}){
@@ -123,6 +102,7 @@ const actions = {
   },
   // 添加默认路由（静态和任意路由）
   addDefaultRoutes({commit}){
+    console.log('添加默认路由');
     commit('SET_DEFALUTMENUS')
   },
   // 退出登录

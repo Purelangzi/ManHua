@@ -112,13 +112,29 @@ export default {
           this.$store.dispatch(`user/${isLogin?'login':'register'}`, loginForm).then(() => {
             this.$message.success(`${isLogin?'登录':'注册'}成功`)
             this.loading = false
+
+            // 方法一：解决切换登录账号重定向到没权限的页面404，仍保留重定向之前页面的功能
+            const flag = this.$store.getters.resultMenus.some(el=>{
+              if(el.children&&el.children.length){
+                return el.children.some(item=>item.path == this.redirect)
+              }else{
+                return el.path == this.redirect
+              }
+            })
+            if(flag){
+              this.$router.push({ path: isLogin?this.redirect || '/':'/login'})
+            }else{
+              this.$router.push({ path: isLogin?'/':'/login'})
+            }
             
-            this.$router.push({ path: isLogin?this.redirect || '/':'/login'})
+            // 方法二：全部重定向到首页
+            // this.$router.push({ path: isLogin?'/':'/login'})
+
             this.isLogin = !this.isLogin
             this.reset()
           }).catch((error) => {
             this.$message.error(error.message)
-            this.loginForm.password = ''
+            this.loginForm.passworda = ''
             this.loading = false
           })
         } else {

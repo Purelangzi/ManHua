@@ -371,6 +371,8 @@ export default {
       this.$refs.editDialog.logData = ''
       this.$refs.editDialog.editForm = {}
       this.$refs.editDialog.chapterList = []
+      this.$refs.editDialog.editFileRaw = undefined
+
       done()
     },
 

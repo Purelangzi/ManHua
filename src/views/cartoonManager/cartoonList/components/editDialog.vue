@@ -51,8 +51,8 @@
             </div>
             <div class="handler">
               <el-button type="success" round @click="saveDetail" style="margin-right: 30px;">保存漫画</el-button>
-              <el-upload action="#" :before-upload="beforeAvatarUpload" :on-error="imgSaveToUrl">
-                <el-button type="primary " round>选择封面</el-button>
+              <el-upload action="#" :before-upload="beforeAvatarUpload" :show-file-list="false">
+                <el-button type="primary" round>选择封面</el-button>
               </el-upload>
             </div>
           </div>
@@ -61,9 +61,9 @@
     </el-tab-pane>
     <el-tab-pane label="添加章节" name="second">
       <div class="chapterContainer">
-        <el-upload action="#" list-type="picture-card" :before-upload="beforeAvatarUpload" :on-error="imgSaveToUrl">
-          <i v-if="!chapterImg" class="el-icon-plus avatar-uploader-icon"></i>
-          <img v-else :src="chapterImg" style="width: 148px;height: 170px;">
+        <el-upload action="#" list-type="picture-card" :before-upload="beforeAvatarUpload">
+          <i v-if="!chapterForm.cover" class="el-icon-plus avatar-uploader-icon"></i>
+          <img v-else :src="chapterForm.cover" style="width: 148px;height: 170px;">
         </el-upload>
         <el-form :model="chapterForm" ref="chapterForm" :rules="chapterRules" label-width="80px" :inline="true" class="chapterForm">
           <el-form-item label="章节名称" prop="title">
@@ -140,7 +140,7 @@ export default {
       chapterList:[],
       // 倒叙还是顺序
       isFlashBack:true,
-      chapterImg:'',
+      // chapterImg:'',
       chapterForm:{
         comic_id:this.detailId,// 漫画id,父级id
         cover:'', // 封面
@@ -153,7 +153,11 @@ export default {
       chapterRules:{
         title: [{ required: true, message: '章节名称不能为空',trigger: 'blur'}],
         title_alias: [{required: true,message: '章节别名不能为空',trigger: 'blur'}]
-      }
+      },
+      // 临时上传的章节封面数据
+      chapterFileRaw:undefined,
+      // 临时上传的详情封面数据
+      editFileRaw:undefined
     }
   },
   mounted() {
@@ -185,28 +189,32 @@ export default {
     },
     // 保存漫画
     async saveDetail(){
+      // 才确定上传漫画封面到服务器,加await就是等待这个结果才往下执行
+      await this.imgUpload()
       const {editForm} = this
-      const res = await this.$API.cartoon.updateList(editForm)
-      if(res.code == 200){
-        this.$message.success(res.msg)
+      const res1 = await this.$API.cartoon.updateList(editForm)
+      if(res1.code == 200){
+        this.$message.success(res1.msg)
         this.$emit('getList')
       }else{
-        this.$message.error(res.msg)
+        this.$message.error(res1.msg)
       }  
     },
 
-    // 上传漫画封面前的回调,检查格式，实时预览
+    // 上传漫画封面或章节封面前的回调,检查格式，实时预览
     beforeAvatarUpload(file){
       try {
         // 判断图片类型
-        let typeArr = ['image/png','image/jpg','image/jpeg']
+        const typeArr = ['image/png','image/jpg','image/jpeg']
         const flag = typeArr.includes(file.type)
         const isLt2M = file.size / 1024 / 1024 < 2
         if (!flag) {
           this.$message.error('上传图片只能是 PNG、JPG、JPEG 格式!')
+          return false
         }
         if (!isLt2M) {
           this.$message.error('上传图片大小不能超过 2MB!')
+          return false
         }
 
         let reader = new FileReader()
@@ -218,49 +226,56 @@ export default {
           // 预览图片
           if(this.activeName == 'first'){
             this.editForm.img_url = txt
+            this.editFileRaw = file // 存储的临时详情图片数据
           }else{
-            this.chapterImg = txt
+            this.chapterForm.cover = txt
+            this.chapterFileRaw = file // 存储的临时章节图片数据
           } 
         }
         return flag && isLt2M
       } catch (error) {
-        
       }
     },
-    // 上传失败的回调才上传漫画封面
-    async imgSaveToUrl(error,file){
-      try {
-        // 创建一个表单对象
-        const formData = new FormData()
-        // 追加图片数据,files为请求参数名
-        formData.append('files',file.raw)
-        const res = await this.$API.common.uploadFile(formData)
-        if(res.code == 200){
-          if(this.chapterImg){
-            this.chapterImg = res.data.url
-          }else{
-            this.editForm.img_url = res.data.url
-          }
-          this.$message.success(res.msg)
-        }else{
-          this.$message.error(res.msg)
-        }
-      } catch (error) {
-      }
-    },
+    // 上传漫画封面或小说封面到服务器
+    async imgUpload(){
+      // 创建一个表单对象
+      const formData = new FormData()
 
+      if(this.activeName == 'first'){
+        // 追加图片数据,files为请求参数名
+        formData.append('files',this.editFileRaw)
+      }else{
+        formData.append('files',this.chapterFileRaw)
+      } 
+      const res = await this.$API.common.uploadFile(formData)
+      if(res.code == 200){
+        // 替换回接口返回的url地址
+        if(this.activeName == 'first'){
+          this.editForm.img_url = res.data.url
+        }else{
+          this.chapterForm.cover = res.data.url
+        }
+      }else{
+        this.$message.error(res.msg)
+      }
+    },
     //保存章节
     onSaveChapter(){
       this.$refs.chapterForm.validate(async(valid) => {
         if(valid){
+          // 才确定上传小说封面到服务器
+          await this.imgUpload()
           const res = await this.$API.cartoon.addChapter(this.chapterForm)
           if(res.code == 200){
             this.$message.success(`${res.msg}`)
-            this.getDetail()
             this.getChapterList()
+            // 不请求详情数据，保留详情临时上传的图片数据，因为请求详情会引起详情封面的重置
+            if(this.editFileRaw) return
+            this.getDetail()
+          }else{
+            this.$message.error(`${res.msg}`)
+
           }
-        }else{
-          this.$message.warning('输入不符合规则')
         }
       })
     },
@@ -354,6 +369,9 @@ export default {
         height: 395px;
         border: 10px solid #fff;
         box-shadow: 0 1px 10px #0000001a;
+        ::v-deep img{
+          width: 295px;
+        }
       }
       .dataRight{
         margin-left: 35px;
@@ -454,6 +472,15 @@ export default {
     }
   }
 }
-
+::v-deep .el-upload-list__item{
+  display: none;
+  transition:none !important;
+  -webkit-transition:nonne !important;
+}
+::v-deep .el-upload-list__item-name{
+  display: none;
+  transition:none !important;
+  -webkit-transition:nonne !important;
+}
 
 </style>

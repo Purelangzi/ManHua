@@ -57,6 +57,7 @@ router.beforeEach(async(to, from, next) => {
         }
       }else{
         // 添加默认路由
+        console.log(store.getters.isDefaultRoutes,from.path);
         if(!store.getters.isDefaultRoutes||from.path=='/'){
           console.log('没有权限，添加默认路由');
           await store.dispatch('user/addDefaultRoutes')
@@ -66,11 +67,9 @@ router.beforeEach(async(to, from, next) => {
           next()
         }
       }
-      
     }
   } else {
     /* has no token*/
-
     if (whiteList.indexOf(to.path) !== -1) {
       // in the free login whitelist, go directly
       next()

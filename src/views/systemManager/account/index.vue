@@ -51,10 +51,10 @@
         </el-table-column>
       </el-table>
 
-     <el-drawer :title="listTitle==1?'添加账号':'修改账号'" :visible.sync="dialogEditVisible" size="30%" ref="drawer" custom-class="demo-drawer"
+     <el-drawer :title="listTitle==1?'添加账号':'修改账号'" :visible.sync="dialogEditVisible" size="30%" ref="drawer" custom-class="drawer"
       :before-close="handleClose" :show-close="true" :wrapperClosable="true">
-      <div class="demo-drawer__content">
-        <el-form :model="accountForm"  ref="accountForm" style="width: 80%;">
+      <div class="drawer__content">
+        <el-form :model="accountForm"  ref="accountForm" :rules="accountFormRuels" style="width: 80%;">
           <el-form-item label="用户名" prop="username" class="drwaerItem">
             <el-input v-model="accountForm.username" placeholder="请输入用户名"></el-input>
           </el-form-item>
@@ -67,15 +67,25 @@
             </el-select>
           </el-form-item>
           <el-form-item label="手机" prop="phone"  class="drwaerItem">
-            <el-input v-model="accountForm.phone" show-password placeholder="请输入手机号"></el-input>
+            <el-input v-model="accountForm.phone" placeholder="请输入手机号"></el-input>
           </el-form-item>
           <el-form-item label="邮箱" prop="email"  class="drwaerItem">
-            <el-input v-model="accountForm.email" show-password placeholder="请输入邮箱"></el-input>
+            <el-input v-model="accountForm.email" placeholder="请输入邮箱"></el-input>
           </el-form-item>
-
+          <el-form-item label="头像" class="drwaerItem">
+            <el-upload
+              class="avatar-uploader"
+              list-type="picture-card"
+              action="#"
+              :show-file-list="false"
+              :before-upload="beforeAvatarUpload">
+              <el-image v-if="accountForm.avatar" :src="accountForm.avatar" fit="cover" :lazy="true" class="avatar"></el-image>
+              <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+            </el-upload>
+          </el-form-item>
         </el-form>
-        <div class="demo-drawer__footer">
-          <el-button type="primary" @click="submitAddOrUpdate" :loading="loading">{{ loading ? ' ...' : '确 定' }}</el-button>
+        <div class="drawer__footer">
+          <el-button type="primary" @click="submitAddOrUpdate" :loading="loading">{{ listTitle==1?'添加':'修改' }}</el-button>
           <el-button @click="$refs.drawer.closeDrawer()">取 消</el-button>
         </div>
       </div>
@@ -84,6 +94,7 @@
       
       
       <el-pagination
+      v-if="showPage"
         style="text-align: right;padding: 20px;"
         @size-change="sizeChange"
         @current-change="currentChange"
@@ -103,6 +114,7 @@ export default {
   data () {
     return {
       loading:true,
+      loadingBtn:false,
       isBtnDisabled:true,
       dialogEditVisible:false,
       // 搜索表单
@@ -127,7 +139,7 @@ export default {
         role_id:'',
         phone:'',
         email:'',
-        // avatar:''
+        avatar:''
       },
       // 账号列表的表头
       columns:[
@@ -143,13 +155,21 @@ export default {
         {label:'影视用户',value:5},{label:'小说用户',value:6}
       ],
       listTitle:1,// 1添加账号 0修改账号
+      accountFormRuels:{
+        username:[ { required: true, message: '请选择输入用户名', trigger: 'blur' }],
+        password:[ { required: true, message: '请选择输入密码', trigger: 'blur' }],
+        phone:[ { required: true, message: '请选择输入手机号', trigger: 'blur' }],
+        email:[ { required: true, message: '请选择输入邮箱', trigger: 'blur' }],
+        role_id:[ { required: true, message: '请选择角色', trigger: 'blur' }],
+      },
       // 当前页
       page:1,
       // 每页显示的条数
       pageSize:20,
       // 总条数
-      totalNum:0
-
+      totalNum:0,
+      showPage:true, // 使用v-if绑定分页，解决页码数据变化，页码不变或不对的问题,
+      avatarFileRaw:undefined // 临时上传的用户头像数据
     }
   },
   mounted() {
@@ -158,7 +178,6 @@ export default {
   methods: {
     // 获取账号列表数据
     async getList(){
-      console.log(2);
       const {page,pageSize} = this
       const {username,phone} = this.Searchform
       let res = await this.$API['system'].getAccountList({page,pageSize,username,phone})
@@ -223,21 +242,84 @@ export default {
       done()
     },
     // 添加账号或修改账号
-    async submitAddOrUpdate(){
-      const res = await this.$API.system[this.listTitle==1?'addAccount':'editAccount'](this.accountForm)
-      if(res.code==200){
-        this.$message.success(res.msg)
+    submitAddOrUpdate(){
+      this.$refs.accountForm.validate(async (valid)=>{
+        if(valid){
+          this.loadingBtn = true
+          //临时上传的头像图片数据存在才上传到服务器
+          if(this.avatarFileRaw) await this.imgUpload()
+          const res = await this.$API.system[this.listTitle == 1 ? 'addAccount' : 'editAccount'](this.accountForm)
+          if (res.code == 200) {
+            this.$message.success(res.msg)
+            // 添加账号就跳到最后一页
+            if (this.listTitle == 1) this.page = Math.ceil((this.totalNum + 1) / this.pageSize)
+          } else {
+            this.$message.error(res.msg)
+          }
+          this.loadingBtn = false
+          
+          const phone = this.$store.getters.userInfo.phone
+          console.log(phone,this.accountForm.phone);
+          if(this.accountForm.phone === phone){
+            this.$message.warning('修改了当前账号的信息，将重新登录')
+            
+            setTimeout(() => {
+              this.$store.dispatch('user/logout')
+              location.reload()
+            }, 2000);
+          }
+          this.$refs.drawer.closeDrawer()
+          this.showPage = false
+          this.getList()
+          // 解决page数据变了，但是页面当前页码并没有变的问题
+          this.$nextTick(() => {
+            this.showPage = true
+          })
+        }
+      })
+      
+      
+    },
+
+    // 上传头像图片前检查，实时预览
+    beforeAvatarUpload(file) {
+      // 判断图片类型
+      const typeArr = ['image/png','image/jpg','image/jpeg']
+      const flag = typeArr.includes(file.type)
+      const isLt2M = file.size / 1024 / 1024 < 2
+      if (!flag) {
+        this.$message.error('上传图片只能是 PNG、JPG、JPEG 格式!')
+        return false
+      }
+      if (!isLt2M) {
+        this.$message.error('上传图片大小不能超过 2MB!')
+        return false
+      }
+      let reader = new FileReader()
+      reader.readAsDataURL(file)
+      reader.onload = (e)=>{
+        let txt = e.target.result
+        this.accountForm.avatar = txt
+        this.avatarFileRaw = file // 存储上传的临时头像图片数据
+      }
+      return flag && isLt2M;
+    },
+    // 上传用户头像到服务器
+    async imgUpload(){
+      // 创建一个表单对象
+      const formData = new FormData()
+      // 追加图片数据,files为请求参数名
+      formData.append('files',this.avatarFileRaw)
+      const res = await this.$API.common.uploadFile(formData)
+      if(res.code == 200){
+        // 替换回接口返回的url地址
+        this.accountForm.avatar = res.data.url
       }else{
         this.$message.error(res.msg)
       }
-      this.$refs.drawer.closeDrawer()
-      this.$nextTick(()=>{
-        console.log(1);
-        this.page = Math.ceil((this.totalNum+1) / this.pageSize)
-        this.getList()
-      })
-      
     },
+
+
 
     // 删除方法
     dropList(ids,name){
@@ -293,16 +375,44 @@ export default {
   background-color: #fff;
   ::v-deep .el-drawer__body{
     padding: 35px;
-    .demo-drawer__content{
+    .drawer__content{
       .el-form-item__label{
-        width: 54px;
+        width: 65px;
       }
       .el-form-item__content{
         display: flex;
+      }
+      .drawer__footer{
+        padding-top: 50px;
+        padding-left: 30px;
       }
     }
   }
   
 }
+
+.avatar-uploader .el-upload {
+    border: 1px dashed #d9d9d9;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .avatar-uploader .el-upload:hover {
+    border-color: #409EFF;
+  }
+  .avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    width: 148px;
+    height: 148px;
+    line-height: 148px;
+    text-align: center;
+  }
+  .avatar {
+    width: 148px;
+    height: 148px;
+    display: block;
+  }
 
 </style>

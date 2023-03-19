@@ -324,7 +324,7 @@ export default {
       this.ids = row.id
       this.dropList(this.ids,row.name)
     },
-    // 漫画详情对话框关闭的回调
+    //小说详情对话框关闭的回调
     handlerClose(done){
       // 清除子组件检验规则
       this.$refs.editDialog.$refs.chapterForm.clearValidate()
@@ -336,6 +336,7 @@ export default {
       this.$refs.editDialog.logData = ''
       this.$refs.editDialog.editForm = {}
       this.$refs.editDialog.chapterList = []
+      this.$refs.editDialog.editFileRaw = undefined
       done()
     },
 
