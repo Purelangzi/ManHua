@@ -1,4 +1,4 @@
-import {get,post,upload} from '@/utils/request'
+import {get,post} from '@/utils/request'
 
 // 获取账号列表
 export const getAccountList = (params) => get('/api/system/account',params)

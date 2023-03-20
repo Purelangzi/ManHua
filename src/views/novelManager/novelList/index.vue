@@ -60,7 +60,7 @@
         </div>
     </div>
     <div class="content">
-      <el-table v-loading="loading" :data="listData" @selection-change="selectChange" ref="listTable" border height="540" size="medium">
+      <el-table v-loading="loading" :data="listData" @selection-change="selectChange" ref="listTable" border height="calc(100vh - 420px )" size="medium">
         <el-table-column type="index" label="序号" width="60" align="center">
           <template v-slot="{$index}">
             <span>{{ (page-1)*pageSize+($index+1) }}</span>

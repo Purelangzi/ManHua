@@ -4,15 +4,15 @@
       <div class="search">
         <el-form :model="Searchform" label-width="80px" :inline=true>
           <el-form-item label="用户名">
-            <el-input v-model.trim="Searchform.username"  @keyup.enter.native="onSeach" placeholder="请输入用户名"></el-input>
+            <el-input v-model.trim="Searchform.username"  @keyup.enter.native="onSeach" :disabled="unDisabled" placeholder="请输入用户名"></el-input>
           </el-form-item>
           <el-form-item label="手机号码">
-            <el-input v-model.trim="Searchform.phone" @keyup.enter.native="onSeach" placeholder="请输入手机号码"></el-input>
+            <el-input v-model.trim="Searchform.phone" @keyup.enter.native="onSeach" :disabled="peDisabled" placeholder="请输入手机号码"></el-input>
           </el-form-item>
           <el-form-item>
             <el-button type="primary" @click="onSeach"  v-show="isBtnDisabled" size="medium">搜索</el-button>
-            <el-button type="warning " @click="onReturn" v-show="!isBtnDisabled" size="medium">返回</el-button>
-            <el-button type="primary" @click="addList"  v-show="isBtnDisabled" size="medium">新增账号</el-button>
+            <el-button type="warning " @click="onReturn" v-show="isGoback" size="medium">返回</el-button>
+            <el-button type="primary" @click="addList"  v-show="!isGoback" size="medium">新增账号</el-button>
             <el-button type="danger " @click="moreDelete" size="medium">批量删除</el-button>
           </el-form-item>
         </el-form>
@@ -21,7 +21,7 @@
 
     </div>
     <div class="content">
-      <el-table v-loading="loading" :data="listData" @selection-change="selectChange" ref="listTable" border :height="600">
+      <el-table v-loading="loading" :data="listData" @selection-change="selectChange" ref="listTable" border height="calc(100vh - 340px )">
         <el-table-column type="index" label="序号" width="60" align="center">
           <template v-slot="{$index}">
             <span>{{ (page-1)*pageSize+($index+1) }}</span>
@@ -116,6 +116,9 @@ export default {
       loading:true,
       loadingBtn:false,
       isBtnDisabled:true,
+      isGoback:false,
+      unDisabled:false,
+      peDisabled:false,
       dialogEditVisible:false,
       // 搜索表单
       Searchform:{
@@ -149,7 +152,7 @@ export default {
         {isSlot:true,prop:'role_id',label:'角色'},
         {isSlot:false,prop:'create_time',label:'创建时间'},
       ],
-      // 编辑或添加账号表单的表头
+      // 编辑或添加账号表单的角色表头
       roleColumns:[
         {label:'超级管理员',value:1},{label:'管理员',value:3},
         {label:'影视用户',value:5},{label:'小说用户',value:6}
@@ -191,14 +194,22 @@ export default {
 
     // 搜索
     onSeach(){
-      if(!this.Searchform.username && !this.Searchform.phone) return
+      const {username,phone} = this.Searchform
+      if(!username && !phone) return
       this.getList()
-      this.isBtnDisabled = false
-
+      if(username) this.unDisabled = true
+      if(phone) this.peDisabled = true
+      if(username && phone){
+        this.isBtnDisabled = false
+      }
+      this.isGoback = true
     },
     // 返回列表
     onReturn(){
       this.isBtnDisabled = true
+      this.isGoback = false
+      this.unDisabled = false
+      this.peDisabled = false
       this.Searchform.username = ''
       this.Searchform.phone = ''
       this.getList()
@@ -221,22 +232,30 @@ export default {
     addList(){
       this.listTitle = 1
       this.dialogEditVisible = true
+      delete this.accountForm.id
     },
     // 编辑列表
     editList(row){
       this.listTitle = 0
-      this.accountForm = {...row}
+      let rowData = {...row}
+      delete rowData.openid
+      delete rowData.session_key
+      delete rowData.question
+      delete rowData.create_time
+      delete rowData.update_time
+      delete rowData.answer
+      this.accountForm = {...rowData}
       this.dialogEditVisible = true
       
     },
     // 删除列表
     async deleteList(row){
       this.ids = row.id
-      this.dropList(this.ids,row.name)
+      this.dropList(this.ids,row.username)
     },
     // 账号详情对话框关闭前的回调
     handleClose(done){
-      // 由于row数据的属性多过accountForm，用Object.assing深拷贝会覆盖从而accountForm多出属性
+      this.$refs.accountForm.clearValidate()
       // Object.assign(this.$data.accountForm,this.$options.data().accountForm)
       this.$data.accountForm = JSON.parse(JSON.stringify(this.$options.data().accountForm))
       done()
@@ -258,11 +277,9 @@ export default {
           }
           this.loadingBtn = false
           
-          const phone = this.$store.getters.userInfo.phone
-          console.log(phone,this.accountForm.phone);
+          const phone = await this.$store.getters.userInfo.phone
           if(this.accountForm.phone === phone){
             this.$message.warning('修改了当前账号的信息，将重新登录')
-            
             setTimeout(() => {
               this.$store.dispatch('user/logout')
               location.reload()
@@ -383,8 +400,9 @@ export default {
         display: flex;
       }
       .drawer__footer{
-        padding-top: 50px;
-        padding-left: 30px;
+        position: absolute;
+        bottom: 20%;
+        left: 10%;
       }
     }
   }
