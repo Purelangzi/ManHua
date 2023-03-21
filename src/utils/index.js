@@ -115,3 +115,14 @@ export function param2Obj(url) {
   })
   return obj
 }
+/**
+ *分割换行符存储在一个数组，
+  去除每个字符串两端的空白字符，过滤掉数组中的空字符串返回最终数组
+ * @param {string} key 
+ * @returns 
+ */
+export function handleKey(key) {
+  return key.split('\n').map((item) => {
+    return item.replace(/(^\s*)|(\s*$)/g, '')
+  }).filter(item => item != '')
+}

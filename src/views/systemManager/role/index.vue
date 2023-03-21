@@ -149,17 +149,13 @@ export default {
         {isSlot:false,prop:'create_time',label:'创建时间'},
         {isSlot:false,prop:'remark',label:'备注'},
       ],
-      // 编辑或添加角色表单的表头
-      roleColumns:[
-        {label:'超级管理员',value:1},{label:'管理员',value:3},
-        {label:'影视用户',value:5},{label:'小说用户',value:6}
-      ],
       listTitle:1,// 1添加角色 0修改角色
       roleFormRuels:{
         role_name:[ { required: true, message: '请选择输入用户名', trigger: 'blur' }],
         role_value:[ { required: true, message: '请选择输入密码', trigger: 'blur' }],
         remark:[ { required: true, message: '请选择输入邮箱', trigger: 'blur' }],
       },
+      // 菜单权限树形规则
       defaultProps:{
         children: 'children',
         label: 'name'
@@ -177,7 +173,6 @@ export default {
       pageSize:20,
       // 总条数
       totalNum:0,
-      avatarFileRaw:undefined // 临时上传的用户头像数据
     }
   },
   mounted() {

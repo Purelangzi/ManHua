@@ -1,6 +1,6 @@
 <template>
   <div class="commend">
-     <commendCartoon :cartoonData="cartoonData" @getMore="getMore"/>
+     <commendCartoon :cartoonData="cartoonData" ref="commendCartoon" @getMore="getMore"/>
      <commendImg :link="link"/>
   </div>
 </template>
@@ -45,6 +45,7 @@ export default {
         el.update_time =strU?.replace('.000Z','')
       })
       this.cartoonData = data.data
+      this.$refs.commendCartoon.loading=false
     },
     getMore(){
       this.getCommendData()

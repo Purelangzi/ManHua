@@ -5,7 +5,7 @@
         <span>推荐</span>
         <el-button type="text" style="float: right;margin-right: 10px;" @click="getMore">更多</el-button>
       </div>
-      <div class="cartoonContent">
+      <div class="cartoonContent" v-loading="loading">
         <cartoonCart v-for="cartData in cartoonData" :key="cartData.id" :cartData="cartData" />
       </div>
     </el-card>
@@ -27,7 +27,7 @@ export default {
   components:{cartoonCart},
   data () {
     return {
-        
+        loading:true
     }
   },
   mounted() {
@@ -35,6 +35,7 @@ export default {
   methods: {
     getMore(){
       this.$emit('getMore')
+      this.loading=true
     }
   },
 }

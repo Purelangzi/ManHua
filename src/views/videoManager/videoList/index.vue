@@ -67,7 +67,7 @@
           </template>
         </el-table-column>
         <el-table-column type="selection" fixed="left"></el-table-column>
-        <div v-for="(col, index) in columns" :key="index">
+        <template v-for="col in columns">
           <el-table-column v-if="col.isSlot" :label="col.label" align="center" show-overflow-tooltip>
             <template v-slot="{row}">
               <div v-if="col.prop == 'cover_lateral'">
@@ -80,7 +80,7 @@
           </el-table-column>
           <el-table-column v-else :prop="col.prop" :label="col.label" align="center" show-overflow-tooltip></el-table-column>
           
-        </div>
+        </template>
         <el-table-column label="操作" align="center" width="250">
           <template v-slot="{row}">
             <el-button type="primary" round icon="el-icon-edit" size="small" @click="editList(row)">编辑</el-button>
