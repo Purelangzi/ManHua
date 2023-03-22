@@ -10,9 +10,8 @@ import FileSaver from 'file-saver'
 export const ImportXlsx = file =>{
     return new Promise((resolve, reject) => {
         try {
-            let files = { 0: file.raw }
             // 拿到文件的数据
-            console.log(files[0], 'file');
+            let files = { 0: file.raw }
             // 创建文件读取对象
             const reader = new FileReader()
             // 开始读取指定的Blob对象或File对象中的内容
@@ -35,4 +34,43 @@ export const ImportXlsx = file =>{
             reject([])
         }
     })
+}
+
+/**
+ * 
+ * @param {string} fileName 文件名
+ * @param data 导出的数据
+ */
+export const exportXls = (fileName,data) =>{
+    // 文件名加创建时间
+    const worksheet = `${fileName}${new Date(Date.now() + 8 * 3600 * 1000).toISOString()}.xlsx`
+    // 创建工作表
+    const res = XLXS.utils.json_to_sheet(data)
+    // 创建工作簿
+    const wb = XLXS.utils.book_new()
+    // 将工作表放入工作簿中
+    XLXS.utils.book_append_sheet(wb, res, 'data')
+    // 生成文件并下载
+    XLXS.writeFile(wb, `${worksheet}`)
+}
+
+/**
+ * @param {*} fileName 文件名
+ * @return 导出整个table数据
+ */
+export const exportExcelDataCommon = (fileName)=>{
+    // 工作表名
+    const worksheet = `${fileName}${new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10)}.xlsx`
+    // 获取表格数据并从表中创建一个工作簿对象
+    const wb = XLXS.utils.table_to_book(document.getElementById('table'))
+    // 生成 xlsx 文件
+    const wbout = XLXS.write(wb,{
+        bookType:'xlsx',
+        bookSST:true,
+        type:'array'
+    })
+    // saveAs 调用在本地机器上下载一个文件
+    FileSaver.saveAs(
+        new Blob([wbout], { type: "application/octet-stream" }),worksheet
+    );
 }
