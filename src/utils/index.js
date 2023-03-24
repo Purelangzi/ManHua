@@ -1,7 +1,4 @@
-/**
- * Created by PanJiaChen on 16/11/18.
- */
-
+import {Message} from 'element-ui'
 /**
  * Parse the time to string
  * @param {(Object|string|number)} time
@@ -115,6 +112,7 @@ export function param2Obj(url) {
   })
   return obj
 }
+
 /**
  *分割换行符存储在一个数组，
   去除每个字符串两端的空白字符，过滤掉数组中的空字符串返回最终数组
@@ -125,4 +123,29 @@ export function handleKey(key) {
   return key.split('\n').map((item) => {
     return item.replace(/(^\s*)|(\s*$)/g, '')
   }).filter(item => item != '')
+}
+/**
+ * 复制字符串
+ * @param {string} copytext 复制内容
+ */
+export function copyText(copytext) {
+  // 如果浏览器支持这个新API
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(copytext);
+    Message.success('复制成功')
+  }else{
+    const text = document.createElement('input'); // 创建节点
+    text.setAttribute('readonly', 'readonly');
+    text.value = copytext; // 赋值
+    document.body.appendChild(text); // 插入节点
+    text.setSelectionRange(0, text.value.length);
+    text.select(); // 选中节点
+    document.execCommand('copy'); // 执行浏览器复制方法,该方法已弃用
+    if (document.body.removeChild(text)) {
+      Message.success('复制成功!')
+    } else {
+      Message.error('复制失败!')
+    }
+  }
+ 
 }

@@ -62,7 +62,7 @@ export const exportExcelDataCommon = (fileName)=>{
     // 工作表名
     const worksheet = `${fileName}${new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10)}.xlsx`
     // 获取表格数据并从表中创建一个工作簿对象
-    const wb = XLXS.utils.table_to_book(document.getElementById('table'))
+    const wb = XLXS.utils.table_to_book(document.getElementsByClassName('exportTable')[0])
     // 生成 xlsx 文件
     const wbout = XLXS.write(wb,{
         bookType:'xlsx',
