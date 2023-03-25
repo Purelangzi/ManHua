@@ -4,6 +4,7 @@ import * as novel from './novel'
 import * as video from './video'
 import * as common from './common'
 import * as system from './system'
+import * as mock from './mock'
 
 
 export {
@@ -12,5 +13,6 @@ export {
     novel,
     video,
     common,
-    system
+    system,
+    mock
 }

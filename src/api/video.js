@@ -1,4 +1,5 @@
 import {get,post} from '@/utils/request'
+
 // 获取视频分类
 export const getCategory = (params) => get('/api/video/getCtcategory',params)
 // 添加视频分类

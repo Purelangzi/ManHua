@@ -22,14 +22,14 @@ import categorySearch from '@/components/categorySearch'
 import categoryTable from '@/components/categoryTable'
 import categoryDialog from '@/components/categoryDialog'
 /**
- * If you don't want to use mock-server
- * you want to use MockJs for mock api
- * you can execute: mockXHR()
- *
- * Currently MockJs will be used in the production environment,
- * please remove it before going online ! ! !
+*如果您不想使用mock服务器
+*您想将MockJs用于mock-api
+*可以执行：mockXHR（）
+*
+*目前MockJ将用于生产环境中，
+*对
  */
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === 'development') {
   const { mockXHR } = require('../mock')
   mockXHR()
 }

@@ -175,7 +175,7 @@
           <el-table-column type="selection"></el-table-column>
           <el-table-column label="序号" align="center"  width="60" :key="Math.random()">
             <template v-slot="{$index}">
-              <span>{{ (pgVeLinkParams.pageLinkVideo-1)*pgVeLinkParams.pageLinkVideo+($index+1) }}</span>
+              <span>{{ (pgVeLinkParams.pageLinkVideo-1)*pgVeLinkParams.pageSizeLinkVideo+($index+1) }}</span>
             </template>
           </el-table-column>
           <el-table-column prop="url" label="漫画小说链接" align="center">
@@ -214,9 +214,9 @@
         @current-change="currentChange"
         :current-page.sync="pgVeLinkParams.pageLinkVideo"
         :page-sizes="[10,20, 40, 80, 100]"
-        :page-size="pgCartoonParams.pageSizeLinkVideo"
+        :page-size="pgVeLinkParams.pageSizeLinkVideo"
         layout="sizes, prev, pager, next, jumper, total"
-        :total="pgCartoonParams.totalNumLinkVideo" background>
+        :total="pgVeLinkParams.totalNumLinkVideo" background>
       </el-pagination>
 
     </el-tab-pane>
@@ -441,7 +441,7 @@ export default {
         pageLinkVideo:1, 
         pageSizeLinkVideo:10, 
         totalNumLinkVideo:0, 
-      }
+      },
     }
   },
   mounted() {
@@ -450,7 +450,6 @@ export default {
   methods: {
     // 开始采集漫画信息
     async startCollectCt(){
-      
       this.logDataCt = ''
       if (!this.ctLinkTextarea) {
         return this.$message.warning('漫画链接不能为空！')
@@ -624,7 +623,7 @@ export default {
       this.isStartCollect = true
     },
 
-    // 开始采集漫画/小说链接
+    // 开始采集漫画/小说/视频链接
     async startCollectLink(){
       this.loadingCtLnk = true
       this.logDataCtAndCp = ''
@@ -682,7 +681,7 @@ export default {
           }
           const res = await this.$API.common.getNovelLink(parasm)
           if(res.code !== 200){
-            this.logDataCtAndCp = `第${i}页采集失败\n` + this.logDataCtAndCp
+            this.logDataCtAndCp = `第${i}页采集失败,IP限制\n` + this.logDataCtAndCp
           }else{
             this.logDataCtAndCp = `正在采集第${i}页，共采集到${res.data.length}条数据\n` + this.logDataCtAndCp
             res.data.forEach(el=>this.link.novelCtLinkAll.push(el))
@@ -709,7 +708,15 @@ export default {
             res.data.forEach(el=>this.link.videoCtLinkAll.push(el))
           }
         }
-        this.pgVeLinkParams.totalNumLinkVideo = this.link.videoCtLinkAll.length
+        // 如果采集的视频链接数据为空，使用mock
+        if(!this.link.videoCtLinkAll.length){
+          const res = await this.$API.mock.getMockVideoLink()
+          this.$message.success('使用mock数据')
+          this.link.videoCtLinkAll = this.link.videoCtLinkAll.concat(res.data)
+          this.pgVeLinkParams.totalNumLinkVideo = this.link.videoCtLinkAll.length
+        }else{
+          this.pgVeLinkParams.totalNumLinkVideo = this.link.videoCtLinkAll.length
+        }
         const {pageLinkVideo,pageSizeLinkVideo} = this.pgVeLinkParams
         this.link.videoCtLink = this.sliceArray(this.link.videoCtLinkAll,pageLinkVideo,pageSizeLinkVideo) 
       }
@@ -802,6 +809,7 @@ export default {
       
       // 一键添加漫画(不用检查链接格式)
       if(type == 1){
+        this.logDataCt = ''
         if(!this.cartoon.cartoonCtDetail.length){
           return this.$message.warning('请采集漫画链接')
         }
@@ -820,55 +828,53 @@ export default {
             platform: 1,
             detail: 1 // 1漫画详情 2漫画章节
           }
-          try {
-            const res = await this.$API.common.queryDetailById(params)
-            if(res.code != 200) {
-              this.logDataCt =`${i + 1}/${linkArrLength},漫画${params.comicId}采集失败,【${res.code}】${res.msg || ''}\n` + this.logDataCt
-            } else{
-              const {title,content,cover,price,is_vip,status,cover_lateral,comic_id,author_id} = res.data
-              // 准备添加漫画的请求参数
-              const cartoon ={
-                name:title,
-                cartoon_introduction:content,
-                img_url:cover,
-                cover_lateral,
-                price,
-                charge:is_vip,
-                status,
-                platform_comic:comic_id,
-                category_id:1,
-                author:author_id,
-              }
-              this.logDataCt = `${i + 1}/${linkArrLength}漫画${params.comicId}添加成功\n` + this.logDataCt
-              this.logDataCt = `开始添加${cartoon.name}\n` + this.logDataCt
-              const res1 = await this.$API.cartoon.addList(cartoon)
-              if(res1.code == 200){
-                this.logDataCt = `${cartoon.name}添加成功\n` + this.logDataCt
-              }else{
-                this.logDataCt = `${cartoon.name}添加失败,${res1.msg}\n` + this.logDataCt
-              }
+          const res = await this.$API.common.queryDetailById(params)
+          if(res.code != 200) {
+            this.logDataCt =`${i + 1}/${linkArrLength},漫画${params.comicId}采集失败,【${res.code}】${res.msg || ''}\n` + this.logDataCt
+          } else{
+            const {title,content,cover,price,is_vip,status,cover_lateral,comic_id,author_id} = res.data
+            // 准备添加漫画的请求参数
+            const cartoon ={
+              name:title,
+              cartoon_introduction:content,
+              img_url:cover,
+              cover_lateral,
+              price,
+              charge:is_vip,
+              status,
+              platform_comic:comic_id,
+              category_id:1,
+              author:author_id,
             }
-          } catch (error) {
-            this.logDataCt = `${i + 1}/${linkArrLength}，漫画${params.comicId}采集失败\n` + this.logDataCt
+            this.logDataCt = `${i + 1}/${linkArrLength}漫画${params.comicId}添加成功\n` + this.logDataCt
+            this.logDataCt = `开始添加${cartoon.name}\n` + this.logDataCt
+            const res1 = await this.$API.cartoon.addList(cartoon)
+            if(res1.code == 200){
+              this.logDataCt = `${cartoon.name}添加成功\n` + this.logDataCt
+            }else{
+              this.logDataCt = `${cartoon.name}添加失败,${res1.msg}\n` + this.logDataCt
+            }
           }
         }
         this.logDataCt  = `一键添加漫画完成\n` +this.logDataCt 
 
       }else if(type == 2){
         // 一键添加小说(不用检查链接格式)
-        if(this.radioChpaterValue=='1'){
-          if(!this.novel.novelCtDetail.length){
-            return this.$message.warning('请采集小说链接')
+        if(this.activeName=='third'){
+          this.logDataCp = ''
+          if(this.radioChpaterValue=='1'){
+            if(!this.novel.novelCtDetail.length) return this.$message.warning('请采集小说链接')
+            result = this.selectChapterOption.length > 0 ? this.selectChapterOption : this.novel.novelCtDetail
+            this.logDataCp = '开始一键添加小说...\n' + this.logDataCp
+          }
+        }else if(this.activeName == 'second'){
+          this.logDataCtAndCp=''
+          if(this.radioCtAndCpValue=='2'){
+            if(!this.link.novelCtLink.length) return this.$message.warning('请采集小说链接')
+            result = this.selectChapterOption.length > 0 ? this.selectChapterOption : this.link.novelCtLink
+            this.logDataCtAndCp = '开始一键添加小说...\n' + this.logDataCtAndCp
           }
         }
-        if(this.radioCtAndCpValue=='2'){
-          if(!this.link.novelCtLink.length){
-            return this.$message.warning('请采集小说链接')
-          }
-        }
-        
-        result = this.selectChapterOption.length > 0 ? this.selectChapterOption : this.novel.novelCtDetail
-        this.logDataCp = '开始一键添加小说...\n' + this.logDataCp
         const linkArrLength = result.length
         for (let i = 0; i < result.length; i++) {
           const item = result[i];
@@ -880,11 +886,27 @@ export default {
             comicId:ids[1],
             pageId:ids[0]
           }
-          try {
-            const res = await this.$API.common.queryNovelDetail(params)
+          const res = await this.$API.common.queryNovelDetail(params)
+          // 采集漫画/小说链接
+          if(this.activeName=='second'){
             if(res.code != 200) {
-              this.logDataCp =`${i + 1}/${linkArrLength},小说${params.comicId}采集失败,【${res.code}】${res.msg || ''}\n` + this.logDataCp
-            } else{
+              this.logDataCtAndCp =`${i + 1}/${linkArrLength},小说${params.comicId}采集失败,IP限制\n` + this.logDataCtAndCp
+            }else{
+              const novel = res.data
+              this.logDataCtAndCp = `${i + 1}/${linkArrLength}小说${params.comicId}添加成功\n` + this.logDataCtAndCp
+              this.logDataCtAndCp = `开始添加${novel.name}\n` + this.logDataCtAndCp
+              novel['category_id'] = 1
+              const res1 = await this.$API.novel.addList(novel)
+              if(res1.code == 200){
+                this.logDataCtAndCp = `${novel.name}添加成功\n` + this.logDataCtAndCp
+              }else{
+                this.logDataCtAndCp = `${novel.name}添加失败,${res1.msg}\n` + this.logDataCtAndCp
+              }
+            }
+          }else{
+            if(res.code != 200) {
+              this.logDataCp =`${i + 1}/${linkArrLength},小说${params.comicId}采集失败,,IP限制\n` + this.logDataCp
+            }else{
               const novel = res.data
               this.logDataCp = `${i + 1}/${linkArrLength}小说${params.comicId}添加成功\n` + this.logDataCp
               this.logDataCp = `开始添加${novel.name}\n` + this.logDataCp
@@ -896,11 +918,53 @@ export default {
                 this.logDataCp = `${novel.name}添加失败,${res1.msg}\n` + this.logDataCp
               }
             }
-          } catch (error) {
-            this.logDataCp = `${i + 1}/${linkArrLength}，小说${params.comicId}采集失败\n` + this.logDataCp
           }
         }
-        this.logDataCp  = `一键添加小说完成\n` +this.logDataCp 
+        this.activeName == 'third'?this.logDataCp  = `一键添加小说完成\n` +this.logDataCp: this.logDataCtAndCp  = `一键添加小说完成\n` +this.logDataCtAndCp
+      }else{
+        if(!this.link.videoCtLink.length) return this.$message.success('请采集视频链接')
+        this.logDataCtAndCp=''
+        result = this.selectChapterOption.length > 0 ? this.selectChapterOption : this.link.videoCtLink
+        this.logDataCtAndCp = '开始一键添加视频...\n' + this.logDataCtAndCp
+        const linkArrLength = result.length
+        for (let i = 0; i < result.length; i++) {
+          const item = result[i];
+          // // 准备采集视频详情的请求参数
+          const params = {
+            // item https://www.shnakun.com/voddetail/41777.html/ 
+            // ["voddetail/41777.", "41777"]
+            comicId:item['url'].match(/voddetail\/(.+)\./)[1],//视频Id,
+            type:0
+          }
+          const res = await this.$API.common.queryVideolDetail(params)
+          if(res.code != 200) {
+            this.logDataCtAndCp =`${i + 1}/${linkArrLength},漫画${params.comicId}采集失败,【${res.code}】${res.msg || ''}\n` + this.logDataCtAndCp
+          } else{
+            const {name,intro,actor,director,platform_comic,cover_lateral} = res.data
+            // 准备添加视频的请求参数
+            const video ={
+              name,
+              intro,
+              actor,
+              director,
+              platform_comic,
+              cover_lateral,
+              category_id:'1'
+            }
+            this.logDataCtAndCp = `${i + 1}/${linkArrLength}视频${params.comicId}添加成功\n` + this.logDataCtAndCp
+            this.logDataCtAndCp = `开始添加 ${video.name}\n` + this.logDataCtAndCp
+            const res1 = await this.$API.video.addList(video)
+            if(res1.code == 200){
+              this.logDataCtAndCp = `视频 ${video.name}添加成功\n` + this.logDataCtAndCp
+            }else{
+              this.logDataCtAndCp = `视频 ${video.name}添加失败,${res1.msg}\n` + this.logDataCtAndCp
+            }
+          }
+          
+        }
+        this.logDataCt  = `一键添加视频完成\n` +this.logDataCt 
+
+
       }
       
     },
@@ -988,6 +1052,7 @@ export default {
             }
             break;
           case '3':
+            console.log(1);
             this.pgVeLinkParams.pageLinkVideo = 1
             this.pgVeLinkParams.pageSizeLinkVideo = pageSize
             if(this.link.videoCtLinkAll.length){
@@ -1053,6 +1118,7 @@ export default {
     
   },
   watch:{
+    // 清除表格多选框状态
     'activeName':{
       handler(oldVal,newVal){
         this.selectChapterOption = []

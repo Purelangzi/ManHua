@@ -1,4 +1,6 @@
 import {post,upload} from '@/utils/request'
+
+
 // 阿里云上传图片（漫画封面）
 export const uploadFile = (data) => upload('/api/ali/uploadFile',data)
 // 采集小说详情
@@ -14,3 +16,4 @@ export const getCartoonLink = (data) =>post('/api/getCartoonLink',data)
 export const getNovelLink = (data) =>post('/api/getNovelLink',data)
 // 采集视频链接 
 export const getVideoLink = (data) =>post('/api/getVideoLink',data)
+
