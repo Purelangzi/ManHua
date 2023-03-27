@@ -7,9 +7,9 @@
       </div>
       <div class="commendAvatar">
         <el-card v-for="(item, index) in link" :key="index"  shadow="hover" >
-          
-            <el-avatar :size="90" shape="circle" :src="item" fit="fill"></el-avatar>
-          
+            <el-avatar :size="90" shape="circle" :src="item" fit="fill">
+              <img :src="errorImg">
+            </el-avatar>
         </el-card>
       </div>
     </el-card>
@@ -18,19 +18,16 @@
 </template>
 
 <script>
+import errImg from '@/assets/images/defaultUserImg.png'
 export default {
   props:['link'],
   name: 'commendImg',
   data () {
     return {
-        
+        errorImg:errImg
     }
   },
-  mounted() {
-    
-  },
   methods: {
-    
   },
 }
 </script>

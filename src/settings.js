@@ -1,6 +1,6 @@
 module.exports = {
 
-  title: 'admin',
+  title: '漫客栈后台管理系统',
 
   /**
    * @type {boolean} true | false

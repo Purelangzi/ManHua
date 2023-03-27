@@ -81,13 +81,13 @@ export const asyncRoutes = [
       {
         path: '/cartoonCategory',
         name: '漫画分类',
-        meta: { title: '漫画分类',icon:'category'},
+        meta: { title: '漫画分类',icon:'category',keepAlive:true},
         component: () => import('@/views/cartoonManager/cartoonCategory')
       },
       {
         path: '/cartoonList',
         name: '漫画列表',
-        meta: { title: '漫画列表',icon:'list' },
+        meta: { title: '漫画列表',icon:'list',keepAlive:true},
         component: () => import('@/views/cartoonManager/cartoonList')
       }
     ]
@@ -100,12 +100,12 @@ export const asyncRoutes = [
     redirect: '/datacenter',
     // 显示一级菜单
     alwaysShow:true,
-    meta: {title:'数据中心',icon: 'manager' },
+    meta: {title:'数据中心',icon: 'manager'},
     children: [
       {
         path: '/cartoonCollection',
         name: '漫画采集',
-        meta: { title: '漫画采集',icon:'collection'},
+        meta: { title: '漫画采集',icon:'collection',keepAlive:true},
         component: () => import('@/views/datacenter/cartoonCollection')
       },
     ]
@@ -120,13 +120,13 @@ export const asyncRoutes = [
       {
         path: '/account',
         name: '账号管理',
-        meta: { title: '账号管理',icon:'manager' },
+        meta: { title: '账号管理',icon:'manager',keepAlive:true },
         component: () => import('@/views/systemManager/account')
       },
       {
         path: '/role',
         name: '角色管理',
-        meta: { title: '角色管理',icon:'manager' },
+        meta: { title: '角色管理',icon:'manager',keepAlive:true },
         component: () => import('@/views/systemManager/role')
       },
     ]
@@ -141,13 +141,13 @@ export const asyncRoutes = [
       {
         path: '/novelCategory',
         name: '小说分类',
-        meta: { title: '小说分类',icon:'category'},
+        meta: { title: '小说分类',icon:'category',keepAlive:true},
         component: () => import('@/views/novelManager/novelCategory')
       },
       {
         path: '/novelList',
         name: '小说列表',
-        meta: { title: '小说列表',icon:'list'},
+        meta: { title: '小说列表',icon:'list',keepAlive:true},
         component: () => import('@/views/novelManager/novelList')
       }
     ]
@@ -163,13 +163,13 @@ export const asyncRoutes = [
       {
         path: '/videoCategory',
         name: '视频分类',
-        meta: { title: '视频分类',icon:'category' },
+        meta: { title: '视频分类',icon:'category',keepAlive:true },
         component: () => import('@/views/videoManager/videoCategory')
       },
       {
         path: '/videoList',
         name: '视频列表',
-        meta: { title: '视频列表',icon:'list'},
+        meta: { title: '视频列表',icon:'list',keepAlive:true},
         component: () => import('@/views/videoManager/videoList')
       }
     ]
