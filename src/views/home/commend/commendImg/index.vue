@@ -6,9 +6,10 @@
           <el-button type="text" style="float: right;margin-right: 10px;">更多</el-button>
       </div>
       <div class="commendAvatar">
-        <el-card v-for="(item, index) in link" :key="index"  shadow="hover" >
-            <el-avatar :size="90" shape="circle" :src="item" fit="fill">
-              <img :src="errorImg">
+
+        <el-card v-for="item in 9" :key="item"  shadow="hover" >
+            <el-avatar :size="90" shape="circle" :src="require('@/assets/images/mmm'+item+'.jpeg')" fit="fill">
+              <img :src="require('@/assets/images/defaultUserImg.png')" />
             </el-avatar>
         </el-card>
       </div>
@@ -18,13 +19,11 @@
 </template>
 
 <script>
-import errImg from '@/assets/images/defaultUserImg.png'
 export default {
-  props:['link'],
   name: 'commendImg',
   data () {
     return {
-        errorImg:errImg
+       
     }
   },
   methods: {

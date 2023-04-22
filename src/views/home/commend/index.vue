@@ -1,7 +1,7 @@
 <template>
   <div class="commend">
      <commendCartoon :cartoonData="cartoonData" ref="commendCartoon" @getMore="getMore"/>
-     <commendImg :link="link"/>
+     <commendImg/>
   </div>
 </template>
 
@@ -16,17 +16,6 @@ export default {
         page:'',
         pageSize:9,
         cartoonData:[],
-        link:[
-        'https://mp-3e2d62ab-fc55-4b79-a8d7-5adf2667014f.cdn.bspapp.com/cloudstorage/8f5ceed4-0efb-46b8-9229-df80fffc85af.jpg',
-        'https://mp-3e2d62ab-fc55-4b79-a8d7-5adf2667014f.cdn.bspapp.com/cloudstorage/49325aea-ad84-4285-9c35-daafd44178cd.jpg',
-        'https://mp-3e2d62ab-fc55-4b79-a8d7-5adf2667014f.cdn.bspapp.com/cloudstorage/31093619-6206-4bc9-b4c6-fd3ac3ba85e1.jpg',
-        'https://mp-3e2d62ab-fc55-4b79-a8d7-5adf2667014f.cdn.bspapp.com/cloudstorage/9ef0b915-b978-4128-a9aa-0cec6bab8c2f.jpg',
-        'https://mp-3e2d62ab-fc55-4b79-a8d7-5adf2667014f.cdn.bspapp.com/cloudstorage/47e10151-4188-46d6-a41d-77205fa4c579.jpg',
-        'https://mp-3e2d62ab-fc55-4b79-a8d7-5adf2667014f.cdn.bspapp.com/cloudstorage/b0c70283-01d1-47fe-b395-cde775f1b7da.jpg',
-        'https://mp-3e2d62ab-fc55-4b79-a8d7-5adf2667014f.cdn.bspapp.com/cloudstorage/88c2f16d-cdff-44f5-ad54-cfa5820b1df3.jpg',
-        'https://mp-3e2d62ab-fc55-4b79-a8d7-5adf2667014f.cdn.bspapp.com/cloudstorage/cc869f65-5ef1-4c04-9feb-0c80d1d85d9f.jpg',
-        'https://mp-3e2d62ab-fc55-4b79-a8d7-5adf2667014f.cdn.bspapp.com/cloudstorage/06db246f-7602-4454-9d0e-4f660e13f4d8.jpg'
-        ]
     }
   },
   created() {
