@@ -174,7 +174,7 @@ export default {
       let res = await this.$API['video'].getList({page,pageSize,name})
       if(res.code == 200){
         this.listData = res.data.data
-        this.totalNum = res.data.total
+        this.totalNum = this.listData.length!==1?res.data.total:1
       }
       this.loading = false
 
@@ -190,6 +190,8 @@ export default {
     // 搜索
     onSeach(){
       if(!this.Searchform.name) return
+      this.page = 1
+      this.pageSize = 10
       this.getList()
       this.isBtnDisabled = false
       this.Searchform.name=''

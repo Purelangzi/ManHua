@@ -180,7 +180,7 @@
           </el-table-column>
           <el-table-column prop="url" label="漫画小说链接" align="center">
             <template v-slot="{row}">
-              {{ row.url }}<i class="el-icon-copy-document" @click="copyText(row.url)"></i>
+              {{ row }}<i class="el-icon-copy-document" @click="copyText(row.url)"></i>
             </template>
           </el-table-column>
         </el-table>
@@ -1052,7 +1052,6 @@ export default {
             }
             break;
           case '3':
-            console.log(1);
             this.pgVeLinkParams.pageLinkVideo = 1
             this.pgVeLinkParams.pageSizeLinkVideo = pageSize
             if(this.link.videoCtLinkAll.length){

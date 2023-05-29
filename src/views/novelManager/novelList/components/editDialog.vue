@@ -1,6 +1,6 @@
 <template>
   <el-tabs v-model="activeName" class="editDialog">
-    <el-tab-pane v-loading="loading" label="漫画详情" name="first">
+    <el-tab-pane v-loading="loading" label="小说详情" name="first">
       <div class="editContent">
         <div class="detail">
           <el-image v-if="editForm.cover_lateral" :src="editForm.cover_lateral" fit="fill" class="detailImg" lazy ></el-image>

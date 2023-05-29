@@ -114,7 +114,8 @@ export default {
             this.loading = false
 
             // 方法一：解决切换登录账号重定向到没权限的页面404，仍保留重定向之前页面的功能
-            const flag = this.$store.getters.resultMenus.some(el=>{
+            // 刚注册的账号resultMenus为空，所以得加?
+            const flag = this.$store.getters.resultMenus?.some(el=>{
               if(el.children&&el.children.length){
                 return el.children.some(item=>item.path == this.redirect)
               }else{
