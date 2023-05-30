@@ -1,10 +1,4 @@
-# 基于vue-admin-template二次开发的仿漫客栈后台管理系统
-技术栈 vue2全家桶+elementUI+es6、axios二次封装、flex、scss，
-实现登录注册，漫画、小说，视频分类页和列表页的增删改查，
-抽离出了公共组件（分类页）为了更好的复用，
-用户管理、角色管理页的增删改查，
-实现用户头像、漫画封面、漫画章节封面的上传等，
-实现动态路由,采用路由懒加载，keep-alive路由缓存，
-使用mock模拟视频采集的链接数据，
-实现采集漫画、小说信息，采集漫画小说视频链接、
-实现Excel批量导入和导出漫画、小说、章节等信息
+# 基于vue-admin-template二次开发的爱看漫后台管理系统
+ 技术栈 vue2全家桶+elementUI+es6、axios二次封装、flex、scss，
+# npm install
+# npm run dev
