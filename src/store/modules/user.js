@@ -14,7 +14,7 @@ const getDefaultState = () => {
     resultMenus:getResultMenus(),
     menus:getMenus(),
     // 判断是否已添加动态路由，0未添加,1已添加
-    isAddRoutes:localStorage.getItem('isAddRoutes'),
+    isAddRoutes:localStorage.getItem('isAddRoutes')|| '0',
     // 判断是否已添加静态路由
     isDefaultRoutes:localStorage.getItem('isDefaultRoutes')||false
   }
@@ -44,6 +44,7 @@ const mutations = {
     resetRouter()
     // router.options.routes = state.resultMenus
     router.addRoutes(state.resultMenus)
+    state.isAddRoutes = '1'
     localStorage.setItem('isAddRoutes','1')
   },
   // 添加默认路由（静态和任意路由）
