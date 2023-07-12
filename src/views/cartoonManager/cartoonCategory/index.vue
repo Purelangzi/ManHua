@@ -27,6 +27,7 @@ export default {
     }
   },
   mounted() {
+
   },
   methods: {
     // 接收搜索组件的分类名字
@@ -75,6 +76,7 @@ export default {
       }
     },
   },
+  
 }
 </script>
 

@@ -6,7 +6,7 @@
         :before-close="handleClose">
         <el-form :model="formName" :rules="SearchFormRules" :ref="formName" label-width="80px" :inline="false" size="normal">
             <el-form-item label="分类名称" prop="name" >
-                <el-input v-show="!isUpdateName" v-model.trim="addForm.name" v-focus placeholder="请输入添加的分类名称"></el-input>
+                <el-input v-show="!isUpdateName" v-model.trim="addForm.name"  v-focus placeholder="请输入添加的分类名称"></el-input>
                 <el-input v-show="isUpdateName" v-model.trim="updateForm.name" v-focus placeholder="请输入修改的分类名称"></el-input>
             </el-form-item>
         </el-form>
@@ -20,7 +20,6 @@
 </template>
 
 <script>
-
 
 export default {
   name: 'categoryDialog',
@@ -51,7 +50,8 @@ export default {
         }
     }
   },
-  mounted() {
+  created() {
+    console.log('2');
   },
   computed:{
     // 判断是添加还是修改
@@ -66,7 +66,6 @@ export default {
   methods: {
     // 取消添加或修改
     cancel(){
-        this.isShow = false
         this.addForm.name = ''
         this.updateForm.name = ''
         const {formName} = this
@@ -107,10 +106,13 @@ export default {
     focus:{
         // 存在页面时只调用一次
         inserted:(el)=>{
+            console.log('inserted');
             el.querySelector('input').focus()
         },
         // 更新后
         update:(el)=>{
+            console.log('update');
+
             el.querySelector('input').focus()
         }
         

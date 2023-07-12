@@ -12,6 +12,9 @@ import App from './App'
 import store from './store'
 import router from './router'
 
+
+
+
 import '@/icons' // icon
 import '@/permission' // permission control
 
@@ -34,6 +37,8 @@ if (process.env.NODE_ENV === 'development') {
   mockXHR()
 }
 // 注册全局组件
+
+
 Vue.component('categorySearch',categorySearch)
 Vue.component('categoryTable',categoryTable)
 Vue.component('categoryDialog',categoryDialog)

@@ -143,7 +143,7 @@
       </div>
       <div class="collectionTable">
         <el-table v-if="radioCtAndCpValue==1" :data="link.cartoonCtLink" v-loading="loadingCtLnk" @selection-change="selectChange"
-          border height="calc(100vh - 480px )" style="width:calc(100vw - 100px )" size="small" ref="tableLink" class="exportTable">
+          border height="calc(100vh - 480px )" style="width:calc(100vw - 100px )" size="small" ref="tableLink" >
           <el-table-column type="selection"></el-table-column>
           <el-table-column label="序号" width="60" align="center">
             <template v-slot="{$index}">
@@ -157,7 +157,7 @@
           </el-table-column>
         </el-table>
         <el-table v-else-if="radioCtAndCpValue==2" :data="link.novelCtLink" v-loading="loadingCtLnk" @selection-change="selectChange"
-          border height="calc(100vh - 510px )" style="width:calc(100vw - 100px )" size="small" ref="tableLink" class="exportTable">
+          border height="calc(100vh - 510px )" style="width:calc(100vw - 100px )" size="small" ref="tableLink" >
           <el-table-column type="selection"></el-table-column>
           <el-table-column label="序号" align="center" width="60" :key="Math.random()">
             <template v-slot="{$index}">
@@ -171,7 +171,7 @@
           </el-table-column>
         </el-table>
         <el-table v-else="radioCtAndCpValue==3" :data="link.videoCtLink" v-loading="loadingCtLnk" @selection-change="selectChange"
-          border height="calc(100vh - 480px )" style="width:calc(100vw - 100px )" size="small" ref="tableLink" class="exportTable">
+          border height="calc(100vh - 480px )" style="width:calc(100vw - 100px )" size="small" ref="tableLink" >
           <el-table-column type="selection"></el-table-column>
           <el-table-column label="序号" align="center"  width="60" :key="Math.random()">
             <template v-slot="{$index}">
@@ -230,7 +230,7 @@
             <el-input type="textarea" v-model="cpLinkTextarea" :rows="6" resize="none"></el-input>
           </div>
           <div class="link footer">
-            <p>范例：<span style="color: red;">七猫小说网:https://www.9biquge.com/42/42857/</span></p>
+            <p>范例：<span style="color: red;">七猫小说网:https://www.9biquge.info/42/42857/</span></p>
           </div>
         </div>
         <div class="linkMain">
@@ -521,7 +521,8 @@ export default {
             this.logDataCt =`${i + 1}/${linkArrLength},漫画${comicId}采集失败,【${res.code}】${res.msg || ''}\n` + this.logDataCt
           } else{
             for (let i = 0; i < res.data.length; i++) {
-              const index = res.data[i];
+              const index = res.data[i]
+              index.comicId = params.comicId // 上家漫画id，方便一键导入漫画章节时匹配对应的漫画
               this.cartoon.cartoonCtChapterAll.push(index)
             }
             this.logDataCt = `${i + 1}/${linkArrLength}漫画${comicId}采集成功\n` + this.logDataCt
@@ -556,8 +557,8 @@ export default {
         let comicId = ''
         let pageId = 1
         // 检查链接格式
-        let execPlatform = /(9biquge.com)/g // 平台正则规则
-        let platform = item.match(execPlatform) // ["9biquge.com"]
+        let execPlatform = /(9biquge.info)/g // 平台正则规则
+        let platform = item.match(execPlatform) // ["9biquge.info"]
         if (!platform) {
           this.logDataCp = `${i + 1}/${linkArrLength}暂不支持此平台连接，请检查链接是否正确！\n` + this.logDataCp
         }
@@ -566,10 +567,10 @@ export default {
           break
         }
         if(platform && platform[0]){
-          if(platform[0]=='9biquge.com'){
-            // item https://www.9biquge.com/44/44347/
+          if(platform[0]=='9biquge.info'){
+            // item https://www.9biquge.info/44/44347/
             // ids ["com/44/44347", "44/44347"]
-            let ids = item.match(/com\/(.+)\//)[1].split('/')
+            let ids = item.match(/info\/(.+)\//)[1].split('/')
             pageId = ids[0]
             comicId = ids[1]
           }else{
@@ -801,7 +802,8 @@ export default {
     },
     // 导出采集好的链接（漫画，小说，视频）
     exportLink(){
-      exportExcelDataCommon('漫画_小说_视频链接')
+      const excelName=['漫画','小说','视频']
+      exportExcelDataCommon(this.$refs.tableLink.$el,`${excelName[this.radioCtAndCpValue - 1]}链接`)
     },
     // 一键添加漫画小说视频 type 1漫画 2小说 3视频
     async addMoreNovelOrCartoon(type){
@@ -878,9 +880,9 @@ export default {
         const linkArrLength = result.length
         for (let i = 0; i < result.length; i++) {
           const item = result[i];
-          // item https://www.9biquge.com/44/44347/
+          // item https://www.9biquge.info/44/44347/
           // ids ["com/44/44347", "44/44347"]
-          let ids = item['url'].match(/com\/(.+)\//)[1].split('/')
+          let ids = item['url'].match(/info\/(.+)\//)[1].split('/')
           // 准备采集小说详情的请求参数
           const params = {
             comicId:ids[1],

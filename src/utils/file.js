@@ -1,6 +1,5 @@
 // 引入xlsx和file-saver 实现excel表格导入和导出
 import * as XLXS from 'xlsx'
-import FileSaver from 'file-saver'
 
 /**
  * 导入表格
@@ -37,13 +36,13 @@ export const ImportXlsx = file =>{
 }
 
 /**
- * 导出表格为excel文件
+ * 导出表格jsons数据为excel文件
  * @param {string} fileName 文件名
- * @param data 导出的数据
+ * @param data 导出的json数据
  */
 export const exportXls = (fileName,data) =>{
     // 文件名加创建时间
-    const worksheet = `${fileName}${new Date(Date.now() + 8 * 3600 * 1000).toISOString()}.xlsx`
+    const worksheet = `${fileName}${new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10)}.xlsx`
     // 创建工作表
     const res = XLXS.utils.json_to_sheet(data)
     // 创建工作簿
@@ -55,22 +54,16 @@ export const exportXls = (fileName,data) =>{
 }
 
 /**
- * @param {*} fileName 文件名
+ * 导出表格dom为excel文件
+ * @param {*} dom table的dom
+ * @param {string} fileName 文件名
  * @return 导出整个table数据
  */
-export const exportExcelDataCommon = (fileName)=>{
+export const exportExcelDataCommon = (dom,fileName)=>{
     // 工作表名
     const worksheet = `${fileName}${new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10)}.xlsx`
     // 获取表格数据并从表中创建一个工作簿对象
-    const wb = XLXS.utils.table_to_book(document.getElementsByClassName('exportTable')[0])
-    // 生成 xlsx 文件
-    const wbout = XLXS.write(wb,{
-        bookType:'xlsx',
-        bookSST:true,
-        type:'array'
-    })
-    // saveAs 调用在本地机器上下载一个文件
-    FileSaver.saveAs(
-        new Blob([wbout], { type: "application/octet-stream" }),worksheet
-    );
+    const wb = XLXS.utils.table_to_book(dom)
+    // 生成文件并下载
+    XLXS.writeFile(wb, `${worksheet}`)
 }

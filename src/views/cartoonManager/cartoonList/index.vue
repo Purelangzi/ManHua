@@ -36,6 +36,7 @@
           
           <el-button type="danger " @click="moreDelete" size="medium">批量删除</el-button>
           <el-button type="danger " @click="moreModify" size="medium">批量修改分类</el-button>
+          <el-button type="success" @click="()=>this.dialogExcelVisible = true" size="medium">导出当前漫画列表</el-button>
         </div>
         
         
@@ -97,6 +98,16 @@
           </template>
         </el-table-column>
       </el-table>
+       <!--预览弹窗表格-->
+       <el-dialog title="表格保存预览" width="70%" :visible.sync="dialogExcelVisible">
+          <el-table :data="listData" id="selectTable" height="380px" stripe>
+              <el-table-column v-for="(col, index) in columns" :key="index"  :prop="col.prop" :label="col.label">
+              </el-table-column>
+          </el-table>
+          <div slot="footer" class="dialog-footer">
+              <el-button type="primary" @click="onExportAllCt">确定保存</el-button>
+          </div>
+        </el-dialog>
 
       <el-dialog :visible.sync="dialogEditVisible" :before-close="handlerClose" :close-on-press-escape="false" :close-on-click-modal="false" width="65%">
         <editDialog ref="editDialog" v-show="detailId"  :detailId="detailId" :categoryData="categoryData" @getList="getList()" />
@@ -118,8 +129,9 @@
 </template>
 
 <script>
-import {ImportXlsx} from '@/utils/file'
+import {ImportXlsx,exportExcelDataCommon,exportXls} from '@/utils/file'
 import editDialog from './components/editDialog'
+
 export default {
   name: 'cartoonList',
   components:{editDialog},
@@ -129,6 +141,7 @@ export default {
       isBtnDisabled:true,
       dialogVisible:false,
       dialogEditVisible:false,
+      dialogExcelVisible:false,
       // 搜索表单
       Searchform:{
         name:''
@@ -165,8 +178,7 @@ export default {
       // 每页显示的条数
       pageSize:10,
       // 总条数
-      totalNum:0
-
+      totalNum:0,
     }
   },
   mounted() {
@@ -210,14 +222,37 @@ export default {
       this.Searchform.name = ''
       this.getList()
     },
-
+    onExportAllCt(){
+      
+      // 定义数据对照表，想导出的列
+      const dataHeader={
+        name:'漫画名称',
+        cartoon_introduction: '简介',
+        img_url:'封面',
+        read:'阅读量',
+        fabulous:'点赞量',
+        price:'价格',
+        charge:'是否收费'
+      }
+      const list = this.listData.map(item=>{
+        let obj ={}
+        for (const key in item) {
+          console.log(key,'key');
+         if(dataHeader[key]){
+          obj[dataHeader[key]] = item[key]
+         }
+        }
+        return obj
+      })
+      exportXls('当前漫画列表',list)
+    },
     // (批量)导入excel并上传漫画
     async importExcCartoon(file){
       this.logform.name = ''
       try {
         // res:导入Excel后ImportXlsx方法转换的JSON数组对象[{},{}]
         let res = await ImportXlsx(file)
-        console.log(res,'res');
+        console.log(res);
         // 定义一个数据对照表
         let head = {
           漫画名称: 'name',
@@ -456,6 +491,9 @@ export default {
       display: flex;
       align-items: flex-start;
       margin-left: 15px;
+      .export-excel-wrapper{
+        margin-left: 10px;
+      }
     }
   }
   .log{
