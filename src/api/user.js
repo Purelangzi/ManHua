@@ -1,13 +1,5 @@
-import request from '@/utils/request'
+import axios from '@/utils/request'
 
-export const login = (data) => request({
-  url: '/user/login',
-  method: 'post',
-  data
-})
+export const login = (data) => axios.post('/user/login', data)
 
-export const register = (data) => request({
-  url: '/user/reg',
-  method: 'post',
-  data
-})
+export const register = (data) => axios.post('/user/reg', data)

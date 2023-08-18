@@ -6,13 +6,12 @@ import * as common from './common'
 import * as system from './system'
 import * as mock from './mock'
 
-
 export {
-    home,
-    cartoon,
-    novel,
-    video,
-    common,
-    system,
-    mock
+  home,
+  cartoon,
+  novel,
+  video,
+  common,
+  system,
+  mock
 }

@@ -17,9 +17,9 @@ export function removeToken() {
 
 export function getUserInfo() {
   // 因为获取cookie里的userInfo需要时间,JSON方法的参数会为空立即报错
-  if(typeof Cookies.get(UserInfo)=='string'){
+  if (typeof Cookies.get(UserInfo) === 'string') {
     return JSON.parse(Cookies.get(UserInfo))
-  }else{
+  } else {
     return Cookies.get(UserInfo)
   }
 }
@@ -34,7 +34,7 @@ export function getMenus() {
   return JSON.parse(localStorage.getItem(menus))
 }
 export function setMenus(data) {
-  return localStorage.setItem(menus,JSON.stringify(data))
+  return localStorage.setItem(menus, JSON.stringify(data))
 }
 export function removeMenus() {
   return localStorage.removeItem(menus)
@@ -44,7 +44,7 @@ export function getResultMenus() {
   return JSON.parse(localStorage.getItem(resultMenus))
 }
 export function setResultMenus(data) {
-  return localStorage.setItem(resultMenus,JSON.stringify(data))
+  return localStorage.setItem(resultMenus, JSON.stringify(data))
 }
 export function removeResultMenus() {
   return localStorage.removeItem(resultMenus)

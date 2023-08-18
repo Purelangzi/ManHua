@@ -48,13 +48,13 @@ activeMenu:'/example/list'如果设置了路径，侧边栏将突出显示您设
 export const constantRoutes = [
   {
     path: '/login',
-    name:'login',
+    name: 'login',
     component: () => import('@/views/login/index'),
     hidden: true
   },
   {
     path: '/404',
-    name:'404',
+    name: '404',
     component: () => import('@/views/404'),
     hidden: true
   },
@@ -66,28 +66,28 @@ export const constantRoutes = [
       path: 'home',
       name: '首页',
       component: () => import('@/views/home'),
-      meta: { title: '首页', icon: 'home' ,keepAlive:true}
+      meta: { title: '首页', icon: 'home', keepAlive: true }
     }]
-  },
+  }
 ]
 export const asyncRoutes = [
   {
-    name:'漫画管理',
-    path:'/cartoonManager',
-    component:Layout,
+    name: '漫画管理',
+    path: '/cartoonManager',
+    component: Layout,
     redirect: '/cartoonManager',
-    meta: {title:'漫画管理',icon: 'manager' },
-    children:[
+    meta: { title: '漫画管理', icon: 'comic-manager' },
+    children: [
       {
         path: '/cartoonCategory',
         name: '漫画分类',
-        meta: { title: '漫画分类',icon:'category',keepAlive:true},
+        meta: { title: '漫画分类', icon: 'category', keepAlive: true },
         component: () => import('@/views/cartoonManager/cartoonCategory')
       },
       {
         path: '/cartoonList',
         name: '漫画列表',
-        meta: { title: '漫画列表',icon:'list',keepAlive:true},
+        meta: { title: '漫画列表', icon: 'list', keepAlive: true },
         component: () => import('@/views/cartoonManager/cartoonList')
       }
     ]
@@ -99,15 +99,15 @@ export const asyncRoutes = [
     component: Layout,
     redirect: '/datacenter',
     // 显示一级菜单
-    alwaysShow:true,
-    meta: {title:'数据中心',icon: 'manager'},
+    alwaysShow: true,
+    meta: { title: '数据中心', icon: 'comic-collection' },
     children: [
       {
         path: '/cartoonCollection',
         name: '漫画采集',
-        meta: { title: '漫画采集',icon:'collection',keepAlive:true},
+        meta: { title: '漫画采集', icon: 'comic-collection', keepAlive: true },
         component: () => import('@/views/datacenter/cartoonCollection')
-      },
+      }
     ]
   },
   {
@@ -115,20 +115,20 @@ export const asyncRoutes = [
     name: '系统管理',
     component: Layout,
     redirect: '/systemManager',
-    meta: {title:'系统管理',icon: 'manager' },
+    meta: { title: '系统管理', icon: 'system-manager' },
     children: [
       {
         path: '/account',
         name: '账号管理',
-        meta: { title: '账号管理',icon:'manager',keepAlive:true },
+        meta: { title: '账号管理', icon: 'system-account', keepAlive: true },
         component: () => import('@/views/systemManager/account')
       },
       {
         path: '/role',
         name: '角色管理',
-        meta: { title: '角色管理',icon:'manager',keepAlive:true },
+        meta: { title: '角色管理', icon: 'system-role', keepAlive: true },
         component: () => import('@/views/systemManager/role')
-      },
+      }
     ]
   },
   {
@@ -136,18 +136,18 @@ export const asyncRoutes = [
     name: '小说管理',
     component: Layout,
     redirect: '/novelManager',
-    meta: {title:'小说管理',icon: 'manager' },
+    meta: { title: '小说管理', icon: 'novel-manager' },
     children: [
       {
         path: '/novelCategory',
         name: '小说分类',
-        meta: { title: '小说分类',icon:'category',keepAlive:true},
+        meta: { title: '小说分类', icon: 'category', keepAlive: true },
         component: () => import('@/views/novelManager/novelCategory')
       },
       {
         path: '/novelList',
         name: '小说列表',
-        meta: { title: '小说列表',icon:'list',keepAlive:true},
+        meta: { title: '小说列表', icon: 'list', keepAlive: true },
         component: () => import('@/views/novelManager/novelList')
       }
     ]
@@ -157,41 +157,24 @@ export const asyncRoutes = [
     name: '视频管理',
     component: Layout,
     redirect: '/videoManager',
-    meta: {title:'视频管理',icon: 'manager' },
+    meta: { title: '视频管理', icon: 'video-manager' },
 
     children: [
       {
         path: '/videoCategory',
         name: '视频分类',
-        meta: { title: '视频分类',icon:'category',keepAlive:true },
+        meta: { title: '视频分类', icon: 'category', keepAlive: true },
         component: () => import('@/views/videoManager/videoCategory')
       },
       {
         path: '/videoList',
         name: '视频列表',
-        meta: { title: '视频列表',icon:'list',keepAlive:true},
+        meta: { title: '视频列表', icon: 'list', keepAlive: true },
         component: () => import('@/views/videoManager/videoList')
       }
     ]
-  },
-  {
-    path: '/orderManager',
-    name: '订单管理',
-    component: Layout,
-    redirect: '/orderManager',
-    // 显示一级菜单
-    alwaysShow:true,
-    meta: {title:'订单管理',icon: 'manager' },
-    children: [
-      {
-        path: '/orderList',
-        name: '订单列表',
-        meta: { title: '订单列表',icon:'list' },
-        component: () => import('@/views/orderManager/orderList')
-      }
-    ]
-  },
-  
+  }
+
 ]
 export const anyRoutes = [{ path: '*', redirect: '/404', hidden: true }]
 

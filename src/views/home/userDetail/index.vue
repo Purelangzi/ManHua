@@ -1,36 +1,36 @@
 <template>
   <div class="userDetail">
     <div class="userImg">
-        <img :src="userInfo&&userInfo.avatar?userInfo.avatar:defaultUserimg">
+      <img :src="userInfo&&userInfo.avatar?userInfo.avatar:defaultUserimg">
     </div>
-     <div class="userInfo">
-        <h3>欢迎{{ userInfo&&userInfo.username }},请开始你的工作吧！</h3>
-     </div>
+    <div class="userInfo">
+      <h3>欢迎{{ userInfo&&userInfo.username }},请开始你的工作吧！</h3>
+    </div>
   </div>
 </template>
 
 <script>
 import defaultUserimg from '@/assets/images/defaultUserImg.png'
 export default {
-  props:{
-    userInfo:{
-        type:Object,
-        require:true
+  name: 'UserDetail',
+  props: {
+    userInfo: {
+      type: Object,
+      default: () => ({})
     }
   },
-  name: 'userDetail',
-  data () {
+  data() {
     return {
-        defaultUserimg
+      defaultUserimg
     }
   },
-  
+
   mounted() {
-    
+
   },
   methods: {
-    
-  },
+
+  }
 }
 </script>
 

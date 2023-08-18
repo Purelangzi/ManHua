@@ -29,11 +29,14 @@ const cdn = {
       'vue-router': 'VueRouter',
       'axios': 'axios',
       'element-ui': 'ELEMENT',  //这里需要注意下
-      'xlsx': 'XLSX'
+      'xlsx': 'XLSX',
+      'nprogress':'NProgress',
+      'dayjs':'dayjs'
   },
   // cdn的css链接
   css: [
-  'https://unpkg.com/element-ui@2.13.2/lib/theme-chalk/index.css'  //引入element ui  css文件
+  'https://unpkg.com/element-ui@2.13.2/lib/theme-chalk/index.css',  //引入element ui  css文件
+  'https://cdn.bootcdn.net/ajax/libs/nprogress/0.2.0/nprogress.min.css'
   ],
   // cdn的js链接
   js: [
@@ -42,7 +45,10 @@ const cdn = {
       'https://cdn.bootcdn.net/ajax/libs/vuex/3.1.0/vuex.min.js',
       'https://cdn.bootcdn.net/ajax/libs/element-ui/2.13.2/index.js',
       'https://cdn.bootcss.com/axios/0.18.1/axios.min.js',
-      'https://cdn.bootcdn.net/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'
+      'https://cdn.bootcdn.net/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
+      'https://cdn.bootcdn.net/ajax/libs/nprogress/0.2.0/nprogress.js',
+      'https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.9/dayjs.min.js'
+      
   ]
 }
 
@@ -86,6 +92,7 @@ module.exports = {
         '@': resolve('src')
       }
     }, 
+    // 用cdn方式引入，则构建时要忽略相关资源
     externals :(isProduction ||devNeedCdn)?cdn.externals:{},
     //警告 webpack 的性能提示
     performance: {
@@ -98,7 +105,7 @@ module.exports = {
       assetFilter: function(assetFilename) {
         return assetFilename.endsWith('.js');
       }
-    },
+    }
   },
   
   chainWebpack(config) {

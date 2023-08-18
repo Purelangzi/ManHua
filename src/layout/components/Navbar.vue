@@ -45,7 +45,7 @@ export default {
     ...mapGetters([
       'sidebar',
       'userInfo'
-    ]),
+    ])
   },
   methods: {
     toggleSideBar() {

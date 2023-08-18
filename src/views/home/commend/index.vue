@@ -1,45 +1,43 @@
 <template>
   <div class="commend">
-     <commendCartoon :cartoonData="cartoonData" ref="commendCartoon" @getMore="getMore"/>
-     <commendImg/>
+    <commendCartoon ref="commendCartoon" :cartoon-data="cartoonData" @getMore="getMore" />
+    <commendImg />
   </div>
 </template>
 
 <script>
 import commendCartoon from './commendCartoon/'
 import commendImg from './commendImg'
+import { formatDate } from '@/utils'
 export default {
-  name: 'commend',
-  components:{commendCartoon,commendImg},
-  data () {
+  name: 'Commend',
+  components: { commendCartoon, commendImg },
+  data() {
     return {
-        page:'',
-        pageSize:9,
-        cartoonData:[],
+      page: '',
+      pageSize: 9,
+      cartoonData: []
     }
   },
   created() {
     this.getCommendData()
   },
   methods: {
-    async getCommendData(){
-      this.page = Math.floor(Math.random()*69)+1
-      const {page,pageSize} = this
-      const {data} = await this.$API.home.getCartoonList({page,pageSize})
-      data.data.forEach(el=>{
-        // 2022-10-26T17:23:34.000Z
-        let strC = el.create_time?.replace('T',' ')
-        let strU = el.update_time?.replace('T',' ')
-        el.create_time = strC?.replace('.000Z','')
-        el.update_time =strU?.replace('.000Z','')
+    async getCommendData() {
+      this.page = Math.floor(Math.random() * 69) + 1
+      const { page, pageSize } = this
+      const { data } = await this.$API.home.getCartoonList({ page, pageSize })
+      data.data.forEach(el => {
+        el.create_time = formatDate(el.create_time)
+        el.update_time = formatDate(el.update_time)
       })
       this.cartoonData = data.data
-      this.$refs.commendCartoon.loading=false
+      this.$refs.commendCartoon.loading = false
     },
-    getMore(){
+    getMore() {
       this.getCommendData()
     }
-  },
+  }
 }
 </script>
 

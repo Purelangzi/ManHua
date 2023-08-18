@@ -3,9 +3,9 @@
     <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
 
       <div class="title-container">
-        <h3 class="title">账号{{!isLogin?'注册':'登录'}}</h3>
+        <h3 class="title">账号{{ !isLogin?'注册':'登录' }}</h3>
       </div>
-      <el-form-item prop="username" v-if="!isLogin">
+      <el-form-item v-if="!isLogin" prop="username">
         <span class="svg-container">
           <svg-icon icon-class="user" />
         </span>
@@ -55,8 +55,8 @@
         </span>
       </el-form-item>
 
-      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">{{isLogin?'登录':'注册'}}</el-button>
-      <div class="register" @click="goBack">{{isLogin?'注册账号':'返回登录'}}</div>
+      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">{{ isLogin?'登录':'注册' }}</el-button>
+      <div class="register" @click="goBack">{{ isLogin?'注册账号':'返回登录' }}</div>
     </el-form>
   </div>
 </template>
@@ -68,17 +68,17 @@ export default {
   data() {
     return {
       loginForm: {
-        username:'',
+        username: '',
         // account: '18819310489',
         // password: '123456'
         account: '',
         password: ''
       },
-      isLogin:true,
+      isLogin: true,
       loginRules: {
-        username: [{ required: true, trigger: 'blur',  message: "昵称不能为空" }],
-        account: [{ required: true, trigger: 'blur',  message: "账号信息不能为空！" }],
-        password: [{ required: true, message: "密码不能为空！", trigger: "blur" },{min: 6,max: 16,message: "密码长度不能小于6个字符或大于16字符",trigger: "blur",}]
+        username: [{ required: true, trigger: 'blur', message: '昵称不能为空' }],
+        account: [{ required: true, trigger: 'blur', message: '账号信息不能为空！' }],
+        password: [{ required: true, message: '密码不能为空！', trigger: 'blur' }, { min: 6, max: 16, message: '密码长度不能小于6个字符或大于16字符', trigger: 'blur' }]
       },
       loading: false,
       passwordType: 'password',
@@ -107,27 +107,27 @@ export default {
     handleLogin() {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
-          const {isLogin,loginForm} = this
+          const { isLogin, loginForm } = this
           this.loading = true
-          this.$store.dispatch(`user/${isLogin?'login':'register'}`, loginForm).then(() => {
-            this.$message.success(`${isLogin?'登录':'注册'}成功`)
+          this.$store.dispatch(`user/${isLogin ? 'login' : 'register'}`, loginForm).then(() => {
+            this.$message.success(`${isLogin ? '登录' : '注册'}成功`)
             this.loading = false
 
             // 方法一：解决切换登录账号重定向到没权限的页面404，仍保留重定向之前页面的功能
             // 刚注册的账号resultMenus为空，所以得加?
-            const flag = this.$store.getters.resultMenus?.some(el=>{
-              if(el.children&&el.children.length){
-                return el.children.some(item=>item.path == this.redirect)
-              }else{
-                return el.path == this.redirect
+            const flag = this.$store.getters.resultMenus?.some(el => {
+              if (el.children && el.children.length) {
+                return el.children.some(item => item.path === this.redirect)
+              } else {
+                return el.path === this.redirect
               }
             })
-            if(flag){
-              this.$router.push({ path: isLogin?this.redirect || '/':'/login'})
-            }else{
-              this.$router.push({ path: isLogin?'/':'/login'})
+            if (flag) {
+              this.$router.push({ path: isLogin ? this.redirect || '/' : '/login' })
+            } else {
+              this.$router.push({ path: isLogin ? '/' : '/login' })
             }
-            
+
             // 方法二：全部重定向到首页
             // this.$router.push({ path: isLogin?'/':'/login'})
 
@@ -143,11 +143,11 @@ export default {
         }
       })
     },
-    goBack(){
-      this.isLogin=!this.isLogin
+    goBack() {
+      this.isLogin = !this.isLogin
       this.reset()
     },
-    reset(){
+    reset() {
       this.$refs.loginForm.resetFields()
       this.$refs.loginForm.clearValidate()
     }
@@ -221,7 +221,6 @@ $light_gray:#eee;
     margin: 0 auto;
     overflow: hidden;
   }
-
 
   .svg-container {
     padding: 6px 5px 6px 15px;

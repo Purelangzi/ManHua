@@ -1,4 +1,4 @@
-import {get} from '@/utils/mockRequest'
+import axios from '@/utils/mockRequest'
 
 // 采集视频链接不可用,mock
-export const getMockVideoLink = () =>get('/getVideoLink')
+export const getMockVideoLink = () => axios.get('/getVideoLink')

@@ -26,7 +26,7 @@ router.beforeEach(async(to, from, next) => {
       NProgress.done()
     } else {
       let userInfo = JSON.parse(JSON.stringify(store.getters.userInfo))
-      if(typeof userInfo =='string'){
+      if (typeof userInfo === 'string') {
         userInfo = JSON.parse(userInfo)
       }
       const hasGetUserInfo = userInfo.username
@@ -46,24 +46,24 @@ router.beforeEach(async(to, from, next) => {
         }
       }
       // 服务器返回的菜单不为空，添加动态路由
-      if(store.getters.menus.length>0){
+      if (store.getters.menus.length > 0) {
         // 只有首页刷新页面不会空白：isAddRoute永远为1，所以判断from.path
-        if (store.getters.isAddRoutes == '0'||from.path=='/') {
-          console.log('添加动态路由');
+        if (store.getters.isAddRoutes === '0' || from.path === '/') {
+          console.log('添加动态路由')
           await store.dispatch('user/addRoutes')
           next({ ...to, replace: true })
         } else {
           next()
         }
-      }else{
+      } else {
         // 添加默认路由
-        console.log(store.getters.isDefaultRoutes,from.path);
-        if(!store.getters.isDefaultRoutes||from.path=='/'){
-          console.log('没有权限，添加默认路由');
+        console.log(store.getters.isDefaultRoutes, from.path)
+        if (!store.getters.isDefaultRoutes || from.path === '/') {
+          console.log('没有权限，添加默认路由')
           await store.dispatch('user/addDefaultRoutes')
           next({ ...to, replace: true })
           NProgress.done()
-        }else{
+        } else {
           next()
         }
       }

@@ -1,10 +1,10 @@
 <template>
   <div class="dashboard-container">
     <el-row>
-      <el-col><userDetail :userInfo="userInfo"></userDetail></el-col>
+      <el-col><userDetail :user-info="userInfo" /></el-col>
     </el-row>
     <el-row>
-      <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24"><commend></commend></el-col>
+      <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24"><commend /></el-col>
     </el-row>
   </div>
 </template>
@@ -15,8 +15,8 @@ import { mapGetters } from 'vuex'
 import userDetail from './userDetail/'
 import commend from './commend'
 export default {
-  name: 'home',
-  components:{userDetail,commend},
+  name: 'Home',
+  components: { userDetail, commend },
   computed: {
     ...mapGetters(['userInfo'])
   }

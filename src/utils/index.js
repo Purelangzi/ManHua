@@ -1,4 +1,5 @@
-import {Message} from 'element-ui'
+import { Message } from 'element-ui'
+import dayjs from 'dayjs'
 /**
  * Parse the time to string
  * @param {(Object|string|number)} time
@@ -116,13 +117,13 @@ export function param2Obj(url) {
 /**
  *分割换行符存储在一个数组，
   去除每个字符串两端的空白字符，过滤掉数组中的空字符串返回最终数组
- * @param {string} key 
- * @returns 
+ * @param {string} key
+ * @returns
  */
 export function handleKey(key) {
   return key.split('\n').map((item) => {
     return item.replace(/(^\s*)|(\s*$)/g, '')
-  }).filter(item => item != '')
+  }).filter(item => item !== '')
 }
 /**
  * 复制字符串
@@ -130,22 +131,30 @@ export function handleKey(key) {
  */
 export function copyText(copytext) {
   // 如果浏览器支持这个新API
-  if(navigator.clipboard){
-    navigator.clipboard.writeText(copytext);
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(copytext)
     Message.success('复制成功')
-  }else{
-    const text = document.createElement('input'); // 创建节点
-    text.setAttribute('readonly', 'readonly');
-    text.value = copytext; // 赋值
-    document.body.appendChild(text); // 插入节点
-    text.setSelectionRange(0, text.value.length);
-    text.select(); // 选中节点
-    document.execCommand('copy'); // 执行浏览器复制方法,该方法已弃用
+  } else {
+    const text = document.createElement('input') // 创建节点
+    text.setAttribute('readonly', 'readonly')
+    text.value = copytext // 赋值
+    document.body.appendChild(text) // 插入节点
+    text.setSelectionRange(0, text.value.length)
+    text.select() // 选中节点
+    document.execCommand('copy') // 执行浏览器复制方法,该方法已弃用
     if (document.body.removeChild(text)) {
       Message.success('复制成功!')
     } else {
       Message.error('复制失败!')
     }
   }
- 
+}
+/**
+ * @description 格式化日期
+ * @param time 2022-10-26T02:23:34.000Z
+ * @returns 2022-10-26 10:23:34
+ */
+export const formatDate = (data) => {
+  return dayjs(data).format('YYYY-MM-DD HH:mm:ss')
+  // return time..slice(0, 19).replace('T', ' ')
 }

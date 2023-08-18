@@ -7,7 +7,7 @@
             <p>商品链接<span style="color: #409eff;">(一行一个,获取漫画详情或章节信息和内容)</span></p>
           </div>
           <div class="link container">
-            <el-input type="textarea" v-model="ctLinkTextarea" :rows="6" resize="none"></el-input>
+            <el-input v-model="ctLinkTextarea" type="textarea" :rows="6" resize="none" />
           </div>
           <div class="link footer">
             <p>范例：<span style="color: red;">漫客栈：https://www.mkzhan.com/216151/</span></p>
@@ -15,14 +15,14 @@
         </div>
         <div class="linkMain">
           <div class="link btn">
-            <el-button v-if="isStartCollect" type="primary" @click="startCollectCt" size="small">开始采集</el-button>
-            <el-button v-else type="primary" plain @click="isStartCollect=true" size="small">取消采集</el-button>
-            <el-button v-if="radioCatroonValue==1" type="primary" @click="exportInfo(1)" size="small">导出漫画信息</el-button>
-            <el-button v-else type="primary" @click="exportInfo(2)" size="small">导出章节信息</el-button>
-            <el-button type="danger " @click="clearList(1)" size="small">清理列表</el-button>
+            <el-button v-if="isStartCollect" type="primary" size="small" @click="startCollectCt">开始采集</el-button>
+            <el-button v-else type="primary" plain size="small" @click="isStartCollect=true">取消采集</el-button>
+            <el-button v-if="radioCatroonValue==1" type="primary" size="small" @click="exportInfo(1)">导出漫画信息</el-button>
+            <el-button v-else type="primary" size="small" @click="exportInfo(2)">导出章节信息</el-button>
+            <el-button type="danger " size="small" @click="clearList(1)">清理列表</el-button>
           </div>
           <div class="link">
-            <el-button v-if="radioCatroonValue==1" type="danger" @click="addMoreNovelOrCartoon(1)" size="small">一键添加漫画</el-button>
+            <el-button v-if="radioCatroonValue==1" type="danger" size="small" @click="addMoreNovelOrCartoon(1)">一键添加漫画</el-button>
           </div>
           <div class="link radio">
             <el-radio-group v-model="radioCatroonValue" style="margin-top: 15px;">
@@ -36,75 +36,94 @@
             <p>执行日志</p>
           </div>
           <div class="link container">
-            <el-input type="textarea" v-model="logDataCt" :rows="6" disabled resize="none"></el-input>
+            <el-input v-model="logDataCt" type="textarea" :rows="6" disabled resize="none" />
           </div>
         </div>
       </div>
       <div class="collectionTable">
-        <el-table v-if="radioCatroonValue==1" :data="cartoon.cartoonCtDetail" v-loading="loadingDetail" @selection-change="selectChange"
-          border height="calc(100vh - 450px )" style="width:calc(100vw - 100px )" ref="tableCt" size="small">
-          <el-table-column type="selection"></el-table-column>
-          <el-table-column type="index" label="序号" width="60" align="center"></el-table-column>
-          <template  v-for="col in ctDetailColumns">
+        <el-table
+          v-if="radioCatroonValue==1"
+          ref="tableCt"
+          v-loading="loadingDetail"
+          :data="cartoon.cartoonCtDetail"
+          border
+          height="calc(100vh - 450px )"
+          style="width:calc(100vw - 100px )"
+          size="small"
+          @selection-change="selectChange"
+        >
+          <el-table-column type="selection" />
+          <el-table-column type="index" label="序号" width="60" align="center" />
+          <template v-for="col in ctDetailColumns">
             <el-table-column v-if="col.isSlot" :label="col.label" align="center" show-overflow-tooltip>
               <template v-slot="{row}">
                 <div v-if="col.prop == 'cover_lateral'">
-                  <el-image :src="row.cover_lateral" fit="fill" style="width: 56px;height: 56px;"></el-image>
+                  <el-image :src="row.cover_lateral" fit="fill" style="width: 56px;height: 56px;" />
                 </div>
                 <div v-if="col.prop == 'is_vip'">
-                  <el-tag  :type="row.is_vip==1?'danger':'success'" effect="dark">{{ row.is_vip==1?'会员':'免费' }}</el-tag>
+                  <el-tag :type="row.is_vip==1?'danger':'success'" effect="dark">{{ row.is_vip==1?'会员':'免费' }}</el-tag>
                 </div>
               </template>
             </el-table-column>
-            <el-table-column v-else :prop="col.prop" :label="col.label" align="center" show-overflow-tooltip></el-table-column>
+            <el-table-column v-else :prop="col.prop" :label="col.label" align="center" show-overflow-tooltip />
           </template>
         </el-table>
-        <el-table v-else :data="cartoon.cartoonCtChapter" v-loading="loadingChapter" @selection-change="selectChange"
-          border height="calc(100vh - 520px )" style="width:calc(100vw - 100px )" ref="tableCt" size="small">
-          <el-table-column type="selection"></el-table-column>
-          <el-table-column label="序号" align="center" :key="Math.random()">
+        <el-table
+          v-else
+          ref="tableCt"
+          v-loading="loadingChapter"
+          :data="cartoon.cartoonCtChapter"
+          border
+          height="calc(100vh - 520px )"
+          style="width:calc(100vw - 100px )"
+          size="small"
+          @selection-change="selectChange"
+        >
+          <el-table-column type="selection" />
+          <el-table-column :key="Math.random()" label="序号" align="center">
             <template v-slot="{$index}">
               <span>{{ (pgCartoonParams.pageCt-1)*pgCartoonParams.pageSizeCt+($index+1) }}</span>
             </template>
           </el-table-column>
-            <template  v-for="col in ctChapterColumns">
-              <el-table-column v-if="col.isSlot"  :label="col.label" align="center" show-overflow-tooltip>
-                <template v-slot="{row}">
-                  <div v-if="col.prop == 'cover'">
-                    <el-image :src="row.cover" fit="fill" style="width: 56px;height: 56px;"></el-image>
-                  </div>
-                  <div v-if="col.prop == 'is_vip'">
-                    <el-tag  :type="row.is_vip==1?'danger':'success'" effect="dark">{{ row.is_vip==1?'收费':'免费' }}</el-tag>
-                  </div>
-                </template>
-              </el-table-column>
-              <el-table-column v-else :prop="col.prop" :label="col.label" align="center" show-overflow-tooltip></el-table-column>
-            </template>
+          <template v-for="col in ctChapterColumns">
+            <el-table-column v-if="col.isSlot" :label="col.label" align="center" show-overflow-tooltip>
+              <template v-slot="{row}">
+                <div v-if="col.prop == 'cover'">
+                  <el-image :src="row.cover" fit="fill" style="width: 56px;height: 56px;" />
+                </div>
+                <div v-if="col.prop == 'is_vip'">
+                  <el-tag :type="row.is_vip==1?'danger':'success'" effect="dark">{{ row.is_vip==1?'收费':'免费' }}</el-tag>
+                </div>
+              </template>
+            </el-table-column>
+            <el-table-column v-else :prop="col.prop" :label="col.label" align="center" show-overflow-tooltip />
+          </template>
         </el-table>
       </div>
       <el-pagination
         v-if="radioCatroonValue=='2'"
         style="text-align: right;padding: 20px;"
-        @size-change="sizeChange"
-        @current-change="currentChange"
         :current-page.sync="pgCartoonParams.pageCt"
         :page-sizes="[10,20, 40, 80, 100]"
         :page-size="pgCartoonParams.pageSizeCt"
         layout="sizes, prev, pager, next, jumper, total"
-        :total="pgCartoonParams.totalNumCt" background>
-      </el-pagination>
+        :total="pgCartoonParams.totalNumCt"
+        background
+        @size-change="sizeChange"
+        @current-change="currentChange"
+      />
     </el-tab-pane>
 
     <el-tab-pane label="采集漫画/小说链接" name="second">
       <div class="collectionLink" style="justify-content: start;">
         <div class="linkMain">
           <div class="link btn">
-            <el-button v-if="isStartCollect" type="primary" @click="startCollectLink" size="small">开始采集</el-button>
-            <el-button v-else type="primary" plain @click="isStartCollect=true" size="small">取消采集</el-button>
-            <el-button  type="primary" @click="exportLink()" size="small">导出链接</el-button>
-            <el-button v-if="radioCtAndCpValue==2" type="warning" @click="addMoreNovelOrCartoon(2)" size="small">一键添加</el-button>
-            <el-button v-if="radioCtAndCpValue==3" type="warning" @click="addMoreNovelOrCartoon(3)" size="small">一键添加</el-button>
-            <el-button type="danger" @click="clearList(3)" size="small">清理列表</el-button>
+            <el-button v-if="isStartCollect" type="primary" size="small" @click="startCollectLink">开始采集</el-button>
+            <el-button v-else type="primary" plain size="small" @click="isStartCollect=true">取消采集</el-button>
+            <el-button type="primary" size="small" @click="exportLink()">导出链接</el-button>
+            <el-button v-if="radioCtAndCpValue==2" type="warning" size="small" @click="addMoreNovelOrCartoon(2)">一键添加</el-button>
+            <el-button v-if="radioCtAndCpValue==3" type="warning" size="small" @click="addMoreNovelOrCartoon(3)">一键添加</el-button>
+            <el-button type="danger" size="small" @click="clearList(3)">清理列表</el-button>
           </div>
 
           <div class="link radio">
@@ -116,20 +135,21 @@
           </div>
           <div class="link page">
             <span class="label">开始页码：</span>
-            <el-input v-model.trim="startPage" style="width: 80px;" clearable></el-input>
+            <el-input v-model.trim="startPage" style="width: 80px;" clearable />
             <span class="label">总页码：</span>
-            <el-input v-model.trim="endPage" style="width: 80px;" clearable :max="50"></el-input>
+            <el-input v-model.trim="endPage" style="width: 80px;" clearable :max="50" />
           </div>
-          <div class="link category" v-if="radioCtAndCpValue==2">
+          <div v-if="radioCtAndCpValue==2" class="link category">
             <span class="label">小说分类</span>
-            <el-select v-model="categoryId" class="select" >
-              <el-option v-for="item in catrogyData"
+            <el-select v-model="categoryId" class="select">
+              <el-option
+                v-for="item in catrogyData"
                 :key="item.id"
                 :label="item.name"
-                :value="item.id">
-              </el-option>
+                :value="item.id"
+              />
             </el-select>
-            
+
           </div>
         </div>
         <div class="linLog">
@@ -137,14 +157,23 @@
             <p>执行日志</p>
           </div>
           <div class="link container">
-            <el-input type="textarea" v-model="logDataCtAndCp" :rows="6" disabled resize="none"></el-input>
+            <el-input v-model="logDataCtAndCp" type="textarea" :rows="6" disabled resize="none" />
           </div>
         </div>
       </div>
       <div class="collectionTable">
-        <el-table v-if="radioCtAndCpValue==1" :data="link.cartoonCtLink" v-loading="loadingCtLnk" @selection-change="selectChange"
-          border height="calc(100vh - 480px )" style="width:calc(100vw - 100px )" size="small" ref="tableLink" >
-          <el-table-column type="selection"></el-table-column>
+        <el-table
+          v-if="radioCtAndCpValue==1"
+          ref="tableLink"
+          v-loading="loadingCtLnk"
+          :data="link.cartoonCtLink"
+          border
+          height="calc(100vh - 480px )"
+          style="width:calc(100vw - 100px )"
+          size="small"
+          @selection-change="selectChange"
+        >
+          <el-table-column type="selection" />
           <el-table-column label="序号" width="60" align="center">
             <template v-slot="{$index}">
               <span>{{ (pgCtLinkParams.pageLinkCt-1)*pgCtLinkParams.pageSizeLinkCt+($index+1) }}</span>
@@ -152,35 +181,53 @@
           </el-table-column>
           <el-table-column prop="url" label="漫画小说链接" align="center">
             <template v-slot="{row}">
-              {{ row.url }}<i class="el-icon-copy-document copy"  @click="copy(row.url)"></i>
+              {{ row.url }}<i class="el-icon-copy-document copy" @click="copy(row.url)" />
             </template>
           </el-table-column>
         </el-table>
-        <el-table v-else-if="radioCtAndCpValue==2" :data="link.novelCtLink" v-loading="loadingCtLnk" @selection-change="selectChange"
-          border height="calc(100vh - 510px )" style="width:calc(100vw - 100px )" size="small" ref="tableLink" >
-          <el-table-column type="selection"></el-table-column>
-          <el-table-column label="序号" align="center" width="60" :key="Math.random()">
+        <el-table
+          v-else-if="radioCtAndCpValue==2"
+          ref="tableLink"
+          v-loading="loadingCtLnk"
+          :data="link.novelCtLink"
+          border
+          height="calc(100vh - 510px )"
+          style="width:calc(100vw - 100px )"
+          size="small"
+          @selection-change="selectChange"
+        >
+          <el-table-column type="selection" />
+          <el-table-column :key="Math.random()" label="序号" align="center" width="60">
             <template v-slot="{$index}">
               <span>{{ (pgCpLinkParams.pageLinkCp-1)*pgCpLinkParams.pageLinkCp+($index+1) }}</span>
             </template>
           </el-table-column>
           <el-table-column prop="url" label="漫画小说链接" align="center">
             <template v-slot="{row}">
-              {{ row.url }}<i class="el-icon-copy-document copy" @click="copyText(row.url)"></i>
+              {{ row.url }}<i class="el-icon-copy-document copy" @click="copyText(row.url)" />
             </template>
           </el-table-column>
         </el-table>
-        <el-table v-else="radioCtAndCpValue==3" :data="link.videoCtLink" v-loading="loadingCtLnk" @selection-change="selectChange"
-          border height="calc(100vh - 480px )" style="width:calc(100vw - 100px )" size="small" ref="tableLink" >
-          <el-table-column type="selection"></el-table-column>
-          <el-table-column label="序号" align="center"  width="60" :key="Math.random()">
+        <el-table
+          v-else="radioCtAndCpValue==3"
+          ref="tableLink"
+          v-loading="loadingCtLnk"
+          :data="link.videoCtLink"
+          border
+          height="calc(100vh - 480px )"
+          style="width:calc(100vw - 100px )"
+          size="small"
+          @selection-change="selectChange"
+        >
+          <el-table-column type="selection" />
+          <el-table-column :key="Math.random()" label="序号" align="center" width="60">
             <template v-slot="{$index}">
               <span>{{ (pgVeLinkParams.pageLinkVideo-1)*pgVeLinkParams.pageSizeLinkVideo+($index+1) }}</span>
             </template>
           </el-table-column>
           <el-table-column prop="url" label="漫画小说链接" align="center">
             <template v-slot="{row}">
-              {{ row }}<i class="el-icon-copy-document" @click="copyText(row.url)"></i>
+              {{ row }}<i class="el-icon-copy-document" @click="copyText(row.url)" />
             </template>
           </el-table-column>
         </el-table>
@@ -188,36 +235,39 @@
       <el-pagination
         v-if="radioCtAndCpValue=='1'"
         style="text-align: right;padding: 20px;"
-        @size-change="sizeChange"
-        @current-change="currentChange"
         :current-page.sync="pgCtLinkParams.pageLinkCt"
         :page-sizes="[10,20, 40, 80, 100]"
         :page-size="pgCartoonParams.pageSizeCt"
         layout="sizes, prev, pager, next, jumper, total"
-        :total="pgCtLinkParams.totalNumLinkCt" background>
-      </el-pagination>
+        :total="pgCtLinkParams.totalNumLinkCt"
+        background
+        @size-change="sizeChange"
+        @current-change="currentChange"
+      />
       <el-pagination
         v-if="radioCtAndCpValue=='2'"
         style="text-align: right;padding: 20px;"
-        @size-change="sizeChange"
-        @current-change="currentChange"
         :current-page.sync="pgCpLinkParams.pageLinkCp"
         :page-sizes="[10,20, 40, 80, 100]"
         :page-size="pgCartoonParams.pageSizeCt"
         layout="sizes, prev, pager, next, jumper, total"
-        :total="pgCpLinkParams.totalNumLinkCp" background>
-      </el-pagination>
+        :total="pgCpLinkParams.totalNumLinkCp"
+        background
+        @size-change="sizeChange"
+        @current-change="currentChange"
+      />
       <el-pagination
         v-if="radioCtAndCpValue=='3'"
         style="text-align: right;padding: 20px;"
-        @size-change="sizeChange"
-        @current-change="currentChange"
         :current-page.sync="pgVeLinkParams.pageLinkVideo"
         :page-sizes="[10,20, 40, 80, 100]"
         :page-size="pgVeLinkParams.pageSizeLinkVideo"
         layout="sizes, prev, pager, next, jumper, total"
-        :total="pgVeLinkParams.totalNumLinkVideo" background>
-      </el-pagination>
+        :total="pgVeLinkParams.totalNumLinkVideo"
+        background
+        @size-change="sizeChange"
+        @current-change="currentChange"
+      />
 
     </el-tab-pane>
     <el-tab-pane label="采集小说信息" name="third">
@@ -227,7 +277,7 @@
             <p>商品链接<span style="color: #409eff;">(一行一个,获取小说详情或小说信息)</span></p>
           </div>
           <div class="link container">
-            <el-input type="textarea" v-model="cpLinkTextarea" :rows="6" resize="none"></el-input>
+            <el-input v-model="cpLinkTextarea" type="textarea" :rows="6" resize="none" />
           </div>
           <div class="link footer">
             <p>范例：<span style="color: red;">七猫小说网:https://www.9biquge.info/42/42857/</span></p>
@@ -235,14 +285,14 @@
         </div>
         <div class="linkMain">
           <div class="link btn">
-            <el-button v-if="isStartCollect" type="primary" @click="startCollectChapter" size="small">开始采集</el-button>
-            <el-button v-else type="primary" plain @click="isStartCollect=true" size="small">取消采集</el-button>
-            <el-button v-if="radioChpaterValue==1" type="primary" @click="exportInfo(3)" size="small">导出小说信息</el-button>
-            <el-button v-else type="primary" @click="exportInfo(4)" size="small">导出章节信息</el-button>
-            <el-button type="danger" @click="clearList(2)" size="small">清理列表</el-button>
+            <el-button v-if="isStartCollect" type="primary" size="small" @click="startCollectChapter">开始采集</el-button>
+            <el-button v-else type="primary" plain size="small" @click="isStartCollect=true">取消采集</el-button>
+            <el-button v-if="radioChpaterValue==1" type="primary" size="small" @click="exportInfo(3)">导出小说信息</el-button>
+            <el-button v-else type="primary" size="small" @click="exportInfo(4)">导出章节信息</el-button>
+            <el-button type="danger" size="small" @click="clearList(2)">清理列表</el-button>
           </div>
           <div class="link">
-            <el-button v-if="radioChpaterValue==1" type="danger" @click="addMoreNovelOrCartoon(2)" size="small">一键添加小说</el-button>
+            <el-button v-if="radioChpaterValue==1" type="danger" size="small" @click="addMoreNovelOrCartoon(2)">一键添加小说</el-button>
           </div>
           <div class="link radio">
             <el-radio-group v-model="radioChpaterValue" style="margin-top: 15px;">
@@ -256,131 +306,148 @@
             <p>执行日志</p>
           </div>
           <div class="link container">
-            <el-input type="textarea" v-model="logDataCp" :rows="6" disabled resize="none"></el-input>
+            <el-input v-model="logDataCp" type="textarea" :rows="6" disabled resize="none" />
           </div>
         </div>
       </div>
       <div class="collectionTable">
-        <el-table v-if="radioChpaterValue==1" :data="novel.novelCtDetail" v-loading="loadingDetail" @selection-change="selectChange"
-          border height="calc(100vh - 450px )" style="width:calc(100vw - 100px )" ref="tableCp" size="small">
-          <el-table-column type="selection"></el-table-column>
-          <el-table-column type="index" label="序号" width="60" align="center"></el-table-column>
-          <template  v-for="col in cpDetailColumns">
+        <el-table
+          v-if="radioChpaterValue==1"
+          ref="tableCp"
+          v-loading="loadingDetail"
+          :data="novel.novelCtDetail"
+          border
+          height="calc(100vh - 450px )"
+          style="width:calc(100vw - 100px )"
+          size="small"
+          @selection-change="selectChange"
+        >
+          <el-table-column type="selection" />
+          <el-table-column type="index" label="序号" width="60" align="center" />
+          <template v-for="col in cpDetailColumns">
             <el-table-column v-if="col.isSlot" :label="col.label" align="center" show-overflow-tooltip>
               <template v-slot="{row}">
                 <div v-if="col.prop == 'cover_lateral'">
-                  <el-image :src="row.cover_lateral" fit="fill" style="width: 56px;height: 56px;"></el-image>
+                  <el-image :src="row.cover_lateral" fit="fill" style="width: 56px;height: 56px;" />
                 </div>
               </template>
             </el-table-column>
-            <el-table-column v-else :prop="col.prop" :label="col.label" align="center" show-overflow-tooltip></el-table-column>
+            <el-table-column v-else :prop="col.prop" :label="col.label" align="center" show-overflow-tooltip />
           </template>
         </el-table>
-        <el-table v-else :data="novel.novelCtChapter" v-loading="loadingChapter" @selection-change="selectChange"
-          border height="calc(100vh - 550px )" style="width:calc(100vw - 100px )" ref="tableCp" size="medium">
-          <el-table-column type="selection"></el-table-column>
-          <el-table-column label="序号" align="center" :key="Math.random()">
+        <el-table
+          v-else
+          ref="tableCp"
+          v-loading="loadingChapter"
+          :data="novel.novelCtChapter"
+          border
+          height="calc(100vh - 550px )"
+          style="width:calc(100vw - 100px )"
+          size="medium"
+          @selection-change="selectChange"
+        >
+          <el-table-column type="selection" />
+          <el-table-column :key="Math.random()" label="序号" align="center">
             <template v-slot="{$index}">
               <span>{{ (pgNovelParams.pageCp-1)*pgNovelParams.pageSizeCp+($index+1) }}</span>
             </template>
           </el-table-column>
-            <template  v-for="col in cpChapterColumns">
-              <el-table-column  :prop="col.prop"  :label="col.label" align="center" show-overflow-tooltip>
-              </el-table-column>
-             
-            </template>
+          <template v-for="col in cpChapterColumns">
+            <el-table-column :prop="col.prop" :label="col.label" align="center" show-overflow-tooltip />
+
+          </template>
         </el-table>
-       
+
       </div>
-       <el-pagination
-          v-if="radioChpaterValue=='2'"
-          style="text-align: right;padding: 20px;"
-          @size-change="sizeChange"
-          @current-change="currentChange"
-          :current-page.sync="pgNovelParams.pageCp"
-          :page-sizes="[10,20, 40, 80, 100]"
-          :page-size="pgNovelParams.pageSizeCp"
-          layout="sizes, prev, pager, next, jumper, total"
-          :total="pgNovelParams.totalNumCp" background>
-        </el-pagination>
+      <el-pagination
+        v-if="radioChpaterValue=='2'"
+        style="text-align: right;padding: 20px;"
+        :current-page.sync="pgNovelParams.pageCp"
+        :page-sizes="[10,20, 40, 80, 100]"
+        :page-size="pgNovelParams.pageSizeCp"
+        layout="sizes, prev, pager, next, jumper, total"
+        :total="pgNovelParams.totalNumCp"
+        background
+        @size-change="sizeChange"
+        @current-change="currentChange"
+      />
     </el-tab-pane>
 
   </el-tabs>
 
-  
 </template>
 
 <script>
-import {handleKey,copyText} from'@/utils'
-import {exportXls,exportExcelDataCommon} from '@/utils/file'
+import { handleKey, copyText } from '@/utils'
+import { exportXls, exportExcelDataCommon } from '@/utils/file'
 export default {
-  name: 'cartoonCollection',
-  data () {
+  name: 'CartoonCollection',
+  data() {
     return {
-      loadingDetail:false,
-      loadingChapter:false,
-      loadingCtLnk:false,
-      activeName:'first',
-      ctLinkTextarea:'', // 采集链接-漫画
-      cpLinkTextarea:'', // 采集链接-小说
-      isStartCollect:true, // 是否开始采集
-      radioCatroonValue:'1', // 1漫画详情 2漫画章节
-      radioChpaterValue:'1', // 1小说详情 2小说章节
-      radioCtAndCpValue:'1', // 1漫画 2小说 3视频
-      logDataCt:'', // 日志信息-漫画
-      logDataCp:'', // 日志信息-小说
-      logDataCtAndCp:'', // 日志信息-漫画/小说
-      cartoon:{
-        cartoonCtDetail:[], // 采集的漫画详情列表
-        cartoonCtChapter:[],// 展示采集的漫画章节列表
-        cartoonCtChapterAll:[],// 采集的全部漫画章节列表
+      loadingDetail: false,
+      loadingChapter: false,
+      loadingCtLnk: false,
+      activeName: 'first',
+      ctLinkTextarea: '', // 采集链接-漫画
+      cpLinkTextarea: '', // 采集链接-小说
+      isStartCollect: true, // 是否开始采集
+      radioCatroonValue: '1', // 1漫画详情 2漫画章节
+      radioChpaterValue: '1', // 1小说详情 2小说章节
+      radioCtAndCpValue: '1', // 1漫画 2小说 3视频
+      logDataCt: '', // 日志信息-漫画
+      logDataCp: '', // 日志信息-小说
+      logDataCtAndCp: '', // 日志信息-漫画/小说
+      cartoon: {
+        cartoonCtDetail: [], // 采集的漫画详情列表
+        cartoonCtChapter: [], // 展示采集的漫画章节列表
+        cartoonCtChapterAll: []// 采集的全部漫画章节列表
       },
-      novel:{
-        novelCtDetail:[], // 采集的小说详情列表
-        novelCtChapter:[],// 展示采集的小说章节列表
-        novelCtChapterAll:[],// 采集的全部小说章节列表
+      novel: {
+        novelCtDetail: [], // 采集的小说详情列表
+        novelCtChapter: [], // 展示采集的小说章节列表
+        novelCtChapterAll: []// 采集的全部小说章节列表
       },
-      link:{
-        cartoonCtLink:[], // 展示采集的漫画链接列表
-        cartoonCtLinkAll:[], // 采集的全部漫画链接列表
-        novelCtLink:[],// 展示采集的小说链接列表
-        novelCtLinkAll:[],// 采集的全部小说链接列表
-        videoCtLink:[],// 展示采集的视频链接列表
-        videoCtLinkAll:[],// 采集的全部视频链接列表
+      link: {
+        cartoonCtLink: [], // 展示采集的漫画链接列表
+        cartoonCtLinkAll: [], // 采集的全部漫画链接列表
+        novelCtLink: [], // 展示采集的小说链接列表
+        novelCtLinkAll: [], // 采集的全部小说链接列表
+        videoCtLink: [], // 展示采集的视频链接列表
+        videoCtLinkAll: []// 采集的全部视频链接列表
       },
-      
+
       // 漫画表头
-      ctDetailColumns:[
-        {isSlot:false,prop:'title',label:'漫画名称'},
-        {isSlot:false,prop:'content',label:'漫画简介'},
-        {isSlot:true,prop:'cover_lateral',label:'封面'},
-        {isSlot:false,prop:'author_id',label:'作者id'},
-        {isSlot:false,prop:'chapter_title',label:'最新章节'},
-        {isSlot:false,prop:'price',label:'价格'},
-        {isSlot:true,prop:'is_vip',label:'是否vip'},
+      ctDetailColumns: [
+        { isSlot: false, prop: 'title', label: '漫画名称' },
+        { isSlot: false, prop: 'content', label: '漫画简介' },
+        { isSlot: true, prop: 'cover_lateral', label: '封面' },
+        { isSlot: false, prop: 'author_id', label: '作者id' },
+        { isSlot: false, prop: 'chapter_title', label: '最新章节' },
+        { isSlot: false, prop: 'price', label: '价格' },
+        { isSlot: true, prop: 'is_vip', label: '是否vip' }
       ],
-      ctChapterColumns:[
-        {isSlot:false,prop:'title',label:'章节名称'},
-        {isSlot:true,prop:'cover',label:'封面'},
-        {isSlot:false,prop:'title_alias',label:'章节别名'},
-        {isSlot:false,prop:'price',label:'价格'},
-        {isSlot:true,prop:'is_vip',label:'是否vip'},
+      ctChapterColumns: [
+        { isSlot: false, prop: 'title', label: '章节名称' },
+        { isSlot: true, prop: 'cover', label: '封面' },
+        { isSlot: false, prop: 'title_alias', label: '章节别名' },
+        { isSlot: false, prop: 'price', label: '价格' },
+        { isSlot: true, prop: 'is_vip', label: '是否vip' }
       ],
       // 小说表头
-      cpDetailColumns:[
-        {isSlot:false,prop:'name',label:'小说名称'},
-        {isSlot:true,prop:'cover_lateral',label:'封面'},
-        {isSlot:false,prop:'intro',label:'简介'},
-        {isSlot:false,prop:'author',label:'作者'},
+      cpDetailColumns: [
+        { isSlot: false, prop: 'name', label: '小说名称' },
+        { isSlot: true, prop: 'cover_lateral', label: '封面' },
+        { isSlot: false, prop: 'intro', label: '简介' },
+        { isSlot: false, prop: 'author', label: '作者' }
       ],
-      cpChapterColumns:[
-        {isSlot:false,prop:'title',label:'章节名称'},
-        {isSlot:false,prop:'title_alias',label:'章节别名'},
+      cpChapterColumns: [
+        { isSlot: false, prop: 'title', label: '章节名称' },
+        { isSlot: false, prop: 'title_alias', label: '章节别名' }
       ],
-      startPage:'1',
-      endPage:'5',
-      categoryId:'xuanhuan',
-      catrogyData:[
+      startPage: '1',
+      endPage: '5',
+      categoryId: 'xuanhuan',
+      catrogyData: [
         {
           id: 'xuanhuan',
           name: '玄幻'
@@ -408,118 +475,150 @@ export default {
         {
           id: 'qita',
           name: '其他'
-        },
+        }
       ],
-      selectChapterOption:[],// 已选择的章节列表多选框数据
+      selectChapterOption: [], // 已选择的章节列表多选框数据
       // 漫画章节分页器
-      pgCartoonParams:{
-        pageCt:1, // 当前页
-        pageSizeCt:10, // 每页显示的条数
-        totalNumCt:0, // 总条数
+      pgCartoonParams: {
+        pageCt: 1, // 当前页
+        pageSizeCt: 10, // 每页显示的条数
+        totalNumCt: 0 // 总条数
       },
-      
+
       // 小说章节分页器
-      pgNovelParams:{
-        pageCp:1, 
-        pageSizeCp:10, 
-        totalNumCp:0,
+      pgNovelParams: {
+        pageCp: 1,
+        pageSizeCp: 10,
+        totalNumCp: 0
       },
       // 漫画链接分页器
-      pgCtLinkParams:{
-        pageLinkCt:1, 
-        pageSizeLinkCt:10, 
-        totalNumLinkCt:0, 
+      pgCtLinkParams: {
+        pageLinkCt: 1,
+        pageSizeLinkCt: 10,
+        totalNumLinkCt: 0
       },
-      //小说链接分页器
-      pgCpLinkParams:{
-        pageLinkCp:1, 
-        pageSizeLinkCp:10, 
-        totalNumLinkCp:0, 
+      // 小说链接分页器
+      pgCpLinkParams: {
+        pageLinkCp: 1,
+        pageSizeLinkCp: 10,
+        totalNumLinkCp: 0
       },
-      //视频链接分页器
-      pgVeLinkParams:{
-        pageLinkVideo:1, 
-        pageSizeLinkVideo:10, 
-        totalNumLinkVideo:0, 
-      },
+      // 视频链接分页器
+      pgVeLinkParams: {
+        pageLinkVideo: 1,
+        pageSizeLinkVideo: 10,
+        totalNumLinkVideo: 0
+      }
     }
   },
+  watch: {
+    // 清除表格多选框状态
+    'activeName': {
+      handler(oldVal, newVal) {
+        this.selectChapterOption = []
+        if (newVal === 'first') {
+          this.$refs.tableCp.clearSelection()
+          this.$refs.tableLink.clearSelection()
+        } else if (newVal === 'second') {
+          this.$refs.tableCt.clearSelection()
+          this.$refs.tableLink.clearSelection()
+        } else {
+          this.$refs.tableCp.clearSelection()
+          this.$refs.tableCt.clearSelection()
+        }
+      }
+    },
+    'radioCatroonValue': {
+      handler() {
+        this.selectChapterOption = []
+      }
+    },
+    'radioChpaterValue': {
+      handler() {
+        this.selectChapterOption = []
+      }
+    },
+    'radioCtAndCpValue': {
+      handler() {
+        this.selectChapterOption = []
+      }
+    }
+
+  },
   mounted() {
-    
+
   },
   methods: {
     // 开始采集漫画信息
-    async startCollectCt(){
+    async startCollectCt() {
       this.logDataCt = ''
       if (!this.ctLinkTextarea) {
         return this.$message.warning('漫画链接不能为空！')
       }
-      this.radioCatroonValue == '1'?this.loadingDetail = true:this.loadingChapter = true
+      this.radioCatroonValue === '1' ? this.loadingDetail = true : this.loadingChapter = true
       this.logDataCt = '采集中...\n' + this.logDataCt
-      
-      
+
       this.isStartCollect = false
       // 数据处理,Set数组去重然后浅拷贝成数组,只有一层不会改变原数组
       const linkArr = Array.from(new Set(handleKey(this.ctLinkTextarea)))
       const linkArrLength = linkArr.length
       for (let i = 0; i < linkArrLength; i++) {
-        const item = linkArr[i];
-        //准备采集漫画详情的请求参数
+        const item = linkArr[i]
+        // 准备采集漫画详情的请求参数
         let comicId = ''
-        let chapterId = ''
+        const chapterId = ''
         let platformId = 1
         // 检查链接格式
-        let execPlatform = /(mkzhan.com)/g // 平台正则规则
-        let platform = item.match(execPlatform) // ["mkzhan.com"]
+        const execPlatform = /(mkzhan.com)/g // 平台正则规则
+        const platform = item.match(execPlatform) // ["mkzhan.com"]
         if (!platform) {
           this.logDataCt = `${i + 1}/${linkArrLength}暂不支持此平台连接，请检查链接是否正确！\n` + this.logDataCt
         }
-        if(this.isStartCollect){
-          this.logDataCt = `正在取消采集中，请稍等....\n` + this.logDataCt 
+        if (this.isStartCollect) {
+          this.logDataCt = `正在取消采集中，请稍等....\n` + this.logDataCt
           break
         }
-        if(platform && platform[0]){
-          if(platform[0]=='mkzhan.com'){
-            // item https://www.mkzhan.com/212350/ 
+        if (platform && platform[0]) {
+          if (platform[0] === 'mkzhan.com') {
+            // item https://www.mkzhan.com/212350/
             // ["com/212350/", "212350"]
             comicId = item.match(/com\/(.+)\//)[1]
             platformId = 1
-          }else{
+          } else {
             this.logDataCt = `${i + 1}/${linkArrLength}未从链接中获取到漫画id，请检查链接是否正确！\n` + this.logDataCt
             continue
           }
         }
         if (comicId.length < 2) {
-          this.logDataCt = `${i + 1}/${linkArrLength}未从链接中获取到漫画id，请检查链接是否正确！\n` +  this.logDataCt
+          this.logDataCt = `${i + 1}/${linkArrLength}未从链接中获取到漫画id，请检查链接是否正确！\n` + this.logDataCt
           continue
         }
         const params = {
-          comicId,//漫画Id
-          chapterId, 
+          comicId, // 漫画Id
+          chapterId,
           method: 'GET',
-          platform: platformId,
+          platform: platformId
           // detail: 1 // 1漫画详情 2漫画章节
         }
         // 采集的是漫画详情
-        if(this.radioCatroonValue == '1') {
+        if (this.radioCatroonValue === '1') {
           params.detail = 1
           const res = await this.$API.common.queryDetailById(params)
-          if(res.code != 200) {
-            this.logDataCt =`${i + 1}/${linkArrLength},漫画${comicId}采集失败,【${res.code}】${res.msg || ''}\n` + this.logDataCt
-          } else{
+          if (res.code !== 200) {
+            this.logDataCt = `${i + 1}/${linkArrLength},漫画${comicId}采集失败,【${res.code}】${res.msg || ''}\n` + this.logDataCt
+          } else {
             // 添加所属漫画链接，方便一键添加漫画中添加请求采集的参数:平台id和漫画id
             res.data.url = item
             this.cartoon.cartoonCtDetail.push(res.data)
             this.logDataCt = `${i + 1}/${linkArrLength}漫画${comicId}采集成功\n` + this.logDataCt
           }
-          
-        }else{
+        } else {
           // 采集的是漫画章节
           params.detail = 2
           const res = await this.$API.common.queryDetailById(params)
-          if(res.code != 200) {
-            this.logDataCt =`${i + 1}/${linkArrLength},漫画${comicId}采集失败,【${res.code}】${res.msg || ''}\n` + this.logDataCt
-          } else{
+          if (res.code !== 200) {
+            this.logDataCt = `${i + 1}/${linkArrLength},漫画${comicId}采集失败,【${res.code}】${res.msg || ''}\n` + this.logDataCt
+          } else {
             for (let i = 0; i < res.data.length; i++) {
               const index = res.data[i]
               index.comicId = params.comicId // 上家漫画id，方便一键导入漫画章节时匹配对应的漫画
@@ -529,56 +628,56 @@ export default {
           }
         }
       }
-      this.radioCatroonValue == '1'?this.loadingDetail = false:this.loadingChapter = false
+      this.radioCatroonValue === '1' ? this.loadingDetail = false : this.loadingChapter = false
       this.pgCartoonParams.totalNumCt = this.cartoon.cartoonCtChapterAll.length
       // 切割成要展示的章节数据
-      let {pageCt,pageSizeCt } = this.pgCartoonParams
-      this.cartoon.cartoonCtChapter = this.sliceArray(this.cartoon.cartoonCtChapterAll,pageCt,pageSizeCt)
+      const { pageCt, pageSizeCt } = this.pgCartoonParams
+      this.cartoon.cartoonCtChapter = this.sliceArray(this.cartoon.cartoonCtChapterAll, pageCt, pageSizeCt)
       this.logDataCt = `采集完成\n` + this.logDataCt
       this.isStartCollect = true
-
     },
 
     // 开始采集小说信息
-    async startCollectChapter(){``
+    async startCollectChapter() {
+      ``
       this.logDataCp = ''
       if (!this.cpLinkTextarea) {
         return this.$message.warning('小说链接不能为空！')
       }
-      this.radioChpaterValue == '1'?this.loadingDetail = true:this.loadingChapter = true
+      this.radioChpaterValue === '1' ? this.loadingDetail = true : this.loadingChapter = true
       this.logDataCp = '采集中...\n' + this.logDataCp
       this.isStartCollect = false
       // 数据处理，Set数组去重然后浅拷贝成数组,只有一层不会改变原数组
       const linkArr = Array.from(new Set(handleKey(this.cpLinkTextarea)))
       const linkArrLength = linkArr.length
       for (let i = 0; i < linkArrLength; i++) {
-        const item = linkArr[i];
+        const item = linkArr[i]
         // 准备采集小说详情的请求参数
         let comicId = ''
-        let pageId = 1
+        let pageId = '1'
         // 检查链接格式
-        let execPlatform = /(9biquge.info)/g // 平台正则规则
-        let platform = item.match(execPlatform) // ["9biquge.info"]
+        const execPlatform = /(9biquge.info)/g // 平台正则规则
+        const platform = item.match(execPlatform) // ["9biquge.info"]
         if (!platform) {
           this.logDataCp = `${i + 1}/${linkArrLength}暂不支持此平台连接，请检查链接是否正确！\n` + this.logDataCp
         }
-        if(this.isStartCollect){
-          this.logDataCp = `正在取消采集中，请稍等....\n` + this.logDataCp 
+        if (this.isStartCollect) {
+          this.logDataCp = `正在取消采集中，请稍等....\n` + this.logDataCp
           break
         }
-        if(platform && platform[0]){
-          if(platform[0]=='9biquge.info'){
+        if (platform && platform[0]) {
+          if (platform[0] === '9biquge.info') {
             // item https://www.9biquge.info/44/44347/
             // ids ["com/44/44347", "44/44347"]
-            let ids = item.match(/info\/(.+)\//)[1].split('/')
+            const ids = item.match(/info\/(.+)\//)[1].split('/')
             pageId = ids[0]
             comicId = ids[1]
-          }else{
+          } else {
             this.logDataCp = `${i + 1}/${linkArrLength}未从链接中获取到漫画id，请检查链接是否正确！\n` + this.logDataCp
             continue
           }
         }
-        if (comicId.length == 0) {
+        if (comicId.length === 0) {
           this.logDataCp = `${i + 1}/${linkArrLength}未从链接中获取到小说id，请检查链接是否正确！\n` + this.logDataCp
           continue
         }
@@ -589,24 +688,24 @@ export default {
           type: 0
         }
         // 采集的是小说详情
-        if(this.radioChpaterValue == '1') {
+        if (this.radioChpaterValue === '1') {
           const res = await this.$API.common.queryNovelDetail(params)
-          if(res.code != 200) {
-            this.logDataCp =`${i + 1}/${linkArrLength},小说${comicId}采集失败,}\n` + this.logDataCp
-          } else{
+          if (res.code !== 200) {
+            this.logDataCp = `${i + 1}/${linkArrLength},小说${comicId}采集失败,}\n` + this.logDataCp
+          } else {
             // 添加所属小说链接，方便一键添加小说中添加请求采集的参数:平台id和小说id
             res.data.url = item
             this.novel.novelCtDetail.push(res.data)
             this.logDataCp = `${i + 1}/${linkArrLength}小说${comicId}采集成功\n` + this.logDataCp
           }
-        }else{
+        } else {
           // 采集的是小说章节
           try {
             params.type = 1
             const res = await this.$API.common.queryNovelDetail(params)
-            if(res.code != 200) {
-              this.logDataCp =`${i + 1}/${linkArrLength},小说${comicId}采集失败,【${res.code}】IP限制，请稍后重新采集\n` + this.logDataCp
-            } else{
+            if (res.code !== 200) {
+              this.logDataCp = `${i + 1}/${linkArrLength},小说${comicId}采集失败,【${res.code}】IP限制，请稍后重新采集\n` + this.logDataCp
+            } else {
               this.novel.novelCtChapterAll = this.novel.novelCtChapterAll.concat(res.data)
               this.logDataCp = `${i + 1}/${linkArrLength}小说${comicId}采集成功\n` + this.logDataCp
             }
@@ -615,152 +714,150 @@ export default {
           }
         }
       }
-      this.radioChpaterValue == '1'?this.loadingDetail = false:this.loadingChapter = false
+      this.radioChpaterValue === '1' ? this.loadingDetail = false : this.loadingChapter = false
       this.pgNovelParams.totalNumCp = this.novel.novelCtChapterAll.length
       // 切割成要展示的章节数据
-      const {pageCp,pageSizeCp} = this.pgNovelParams
-      this.novel.novelCtChapter = this.sliceArray(this.novel.novelCtChapterAll,pageCp,pageSizeCp)
+      const { pageCp, pageSizeCp } = this.pgNovelParams
+      this.novel.novelCtChapter = this.sliceArray(this.novel.novelCtChapterAll, pageCp, pageSizeCp)
       this.logDataCp = `采集完成\n` + this.logDataCp
       this.isStartCollect = true
     },
 
     // 开始采集漫画/小说/视频链接
-    async startCollectLink(){
+    async startCollectLink() {
       this.loadingCtLnk = true
       this.logDataCtAndCp = ''
       this.logDataCtAndCp = '采集中...\n' + this.logDataCtAndCp
       this.isStartCollect = false
-      if(!this.endPage){
+      if (!this.endPage) {
         this.endPage = '1'
-      }else{
-        this.endPage = Number(this.endPage) >50 ?'50':this.endPage
+      } else {
+        this.endPage = Number(this.endPage) > 50 ? '50' : this.endPage
       }
-      if(!this.startPage){
+      if (!this.startPage) {
         this.startPage = '1'
-      }else if(Number(this.startPage)>Number(this.endPage)){
+      } else if (Number(this.startPage) > Number(this.endPage)) {
         this.startPage = this.endPage
       }
-      let num = parseInt(this.startPage)
-      let page = parseInt(this.endPage)
-      
-      
+      const num = parseInt(this.startPage)
+      const page = parseInt(this.endPage)
+
       // 采集的是漫画链接
-      if(this.radioCtAndCpValue=='1'){
+      if (this.radioCtAndCpValue === '1') {
         for (let i = num; i <= page; i++) {
-          if(this.isStartCollect){
-            this.logDataCtAndCp = `正在取消采集中，请稍等....\n` + this.logDataCtAndCp 
+          if (this.isStartCollect) {
+            this.logDataCtAndCp = `正在取消采集中，请稍等....\n` + this.logDataCtAndCp
             break
           }
-          const parasm={
-            platform:1,
-            page:i
+          const parasm = {
+            platform: 1,
+            page: i
           }
           const res = await this.$API.common.getCartoonLink(parasm)
-          if(res.code !== 200){
+          if (res.code !== 200) {
             this.logDataCtAndCp = `第${i}页采集失败\n` + this.logDataCtAndCp
-          }else{
+          } else {
             this.logDataCtAndCp = `正在采集第${i}页，共采集到${res.data.length}条数据\n` + this.logDataCtAndCp
-            res.data.forEach(el=>this.link.cartoonCtLinkAll.push(el))
+            res.data.forEach(el => this.link.cartoonCtLinkAll.push(el))
           }
-          
         }
         this.pgCtLinkParams.totalNumLinkCt = this.link.cartoonCtLinkAll.length
-        const {pageLinkCt,pageSizeLinkCt} = this.pgCtLinkParams
-        this.link.cartoonCtLink = this.sliceArray(this.link.cartoonCtLinkAll,pageLinkCt,pageSizeLinkCt) 
-        
-        
-      }else if(this.radioCtAndCpValue=='2'){
+        const { pageLinkCt, pageSizeLinkCt } = this.pgCtLinkParams
+        this.link.cartoonCtLink = this.sliceArray(this.link.cartoonCtLinkAll, pageLinkCt, pageSizeLinkCt)
+      } else if (this.radioCtAndCpValue === '2') {
         // 采集的是小说链接
         for (let i = num; i <= page; i++) {
-          if(this.isStartCollect){
-            this.logDataCtAndCp = `正在取消采集中，请稍等....\n` + this.logDataCtAndCp 
+          if (this.isStartCollect) {
+            this.logDataCtAndCp = `正在取消采集中，请稍等....\n` + this.logDataCtAndCp
             break
           }
-          const parasm={
-            category_id:this.categoryId,
-            page:i
+          const parasm = {
+            category_id: this.categoryId,
+            page: i
           }
+          console.log(parasm)
           const res = await this.$API.common.getNovelLink(parasm)
-          if(res.code !== 200){
+          if (res.code !== 200) {
             this.logDataCtAndCp = `第${i}页采集失败,IP限制\n` + this.logDataCtAndCp
-          }else{
+          } else {
             this.logDataCtAndCp = `正在采集第${i}页，共采集到${res.data.length}条数据\n` + this.logDataCtAndCp
-            res.data.forEach(el=>this.link.novelCtLinkAll.push(el))
+            res.data.forEach(el => this.link.novelCtLinkAll.push(el))
           }
         }
         this.pgCpLinkParams.totalNumLinkCp = this.link.novelCtLinkAll.length
-        const {pageLinkCp,pageSizeLinkCp} = this.pgCpLinkParams
-        this.link.novelCtLink = this.sliceArray(this.link.novelCtLinkAll,pageLinkCp,pageSizeLinkCp) 
-      }else{
+        const { pageLinkCp, pageSizeLinkCp } = this.pgCpLinkParams
+        this.link.novelCtLink = this.sliceArray(this.link.novelCtLinkAll, pageLinkCp, pageSizeLinkCp)
+      } else {
         // 采集的是视频链接
         for (let i = num; i <= page; i++) {
-          if(this.isStartCollect){
-            this.logDataCtAndCp = `正在取消采集中，请稍等....\n` + this.logDataCtAndCp 
+          if (this.isStartCollect) {
+            this.logDataCtAndCp = `正在取消采集中，请稍等....\n` + this.logDataCtAndCp
             break
           }
-          const parasm={
-            page:i
+          const parasm = {
+            page: i
           }
           const res = await this.$API.common.getVideoLink(parasm)
-          if(res.code !== 200){
+          if (res.code !== 200) {
             this.logDataCtAndCp = `第${i}页采集失败\n` + this.logDataCtAndCp
-          }else{
+          } else {
             this.logDataCtAndCp = `正在采集第${i}页，共采集到${res.data.length}条数据\n` + this.logDataCtAndCp
-            res.data.forEach(el=>this.link.videoCtLinkAll.push(el))
+            res.data.forEach(el => this.link.videoCtLinkAll.push(el))
           }
         }
         // 如果采集的视频链接数据为空，使用mock
-        if(!this.link.videoCtLinkAll.length){
+        if (!this.link.videoCtLinkAll.length) {
           const res = await this.$API.mock.getMockVideoLink()
           this.$message.success('使用mock数据')
           this.link.videoCtLinkAll = this.link.videoCtLinkAll.concat(res.data)
           this.pgVeLinkParams.totalNumLinkVideo = this.link.videoCtLinkAll.length
-        }else{
+        } else {
           this.pgVeLinkParams.totalNumLinkVideo = this.link.videoCtLinkAll.length
         }
-        const {pageLinkVideo,pageSizeLinkVideo} = this.pgVeLinkParams
-        this.link.videoCtLink = this.sliceArray(this.link.videoCtLinkAll,pageLinkVideo,pageSizeLinkVideo) 
+        const { pageLinkVideo, pageSizeLinkVideo } = this.pgVeLinkParams
+        this.link.videoCtLink = this.sliceArray(this.link.videoCtLinkAll, pageLinkVideo, pageSizeLinkVideo)
       }
       this.loadingCtLnk = false
       this.logDataCtAndCp = '采集完成\n' + this.logDataCtAndCp
       this.isStartCollect = true
     },
     // 导出excel漫画1,漫画章节2,小说3,小说章节4
-    exportInfo(type){
+    exportInfo(type) {
       let result = []
       let filename = ''
       let head = {}
       switch (type) {
         case 1:
-        filename = '漫画列表'
-        head = {
-          title: '漫画名称',
-          cover: '封面',
-          content: '漫画简介',
-          author_id: '作者',
-          price: '价格',
-          is_vip: '是否vip',
-          url: '采集链接',
-          comic_id: '上家漫画ID',
-          cover_lateral: '漫画详情封面'
-        }
-        // 选择的章节列表
-        result = this.selectChapterOption.length > 0 ? this.selectChapterOption : this.cartoon.cartoonCtDetail
-        break;
+          filename = '漫画列表'
+          head = {
+            title: '漫画名称',
+            cover: '封面',
+            content: '漫画简介',
+            author_id: '作者',
+            price: '价格',
+            is_vip: '是否vip',
+            url: '采集链接',
+            comic_id: '上家漫画ID',
+            cover_lateral: '漫画详情封面'
+          }
+          // 选择的章节列表
+          result = this.selectChapterOption.length > 0 ? this.selectChapterOption : this.cartoon.cartoonCtDetail
+          break
         case 2:
-        filename = '章节列表'
-        head = {
-          title: '章节名称',
-          cover: '封面',
-          title_alias: '章节别名',
-          price: '价格',
-          is_vip: '是否vip',
-          url: '采集链接',
-          platform_chapter: '上家ID',
-          comicId: '上家漫画ID'
-        }
-        result = this.selectChapterOption.length > 0 ? this.selectChapterOption : this.cartoon.cartoonCtChapter
-        break
+          filename = '漫画章节列表'
+          head = {
+            title: '章节名称',
+            cover: '封面',
+            title_alias: '章节别名',
+            price: '价格',
+            is_vip: '是否vip',
+            url: '采集链接',
+            chapter_id: '上家ID', // chapter_id就是platform_chapter
+            comicId: '上家漫画ID'
+          }
+          result = this.selectChapterOption.length > 0 ? this.selectChapterOption : this.cartoon.cartoonCtChapter
+
+          break
         case 3:
           filename = '小说列表'
           head = {
@@ -775,22 +872,25 @@ export default {
           result = this.selectChapterOption.length > 0 ? this.selectChapterOption : this.novel.novelCtDetail
           break
         case 4:
-        filename = '小说章节列表'
-        head = {
-          title: '小说名称',
-          title_alias: '章节别名',
-          platform_chapter: '上家章节ID',
-          platform_comic: '上家漫画ID'
-        }
-        result = this.selectChapterOption.length > 0 ? this.selectChapterOption : this.novel.novelCtChapter
-        break
+          filename = '小说章节列表'
+          head = {
+            title: '小说名称',
+            title_alias: '章节别名',
+            platform_chapter: '上家章节ID',
+            platform_comic: '上家漫画ID'
+          }
+          result = this.selectChapterOption.length > 0 ? this.selectChapterOption : this.novel.novelCtChapter
+          break
       }
-      //定义一个数组，用来保存最后需要发请求的数据,最后结果是个数组对象[{},{}]
-      const list = result.map(item=>{
-        const obj = {} 
-        for(const k in item){
+      if (!result.length) {
+        return this.$message.warning('请采集')
+      }
+      // 定义一个数组，用来保存最后需要发请求的数据,最后结果是个数组对象[{},{}]
+      const list = result.map(item => {
+        const obj = {}
+        for (const k in item) {
           // head的键值和res的对象属性相同，head['漫画名称']存在？
-          if(head[k]){
+          if (head[k]) {
             // 相当于obj.name = item.name，而item.name='xxx',添加属性并赋值
             obj[head[k]] = item[k]
           }
@@ -801,356 +901,314 @@ export default {
       exportXls(filename, list)
     },
     // 导出采集好的链接（漫画，小说，视频）
-    exportLink(){
-      const excelName=['漫画','小说','视频']
-      exportExcelDataCommon(this.$refs.tableLink.$el,`${excelName[this.radioCtAndCpValue - 1]}链接`)
+    exportLink() {
+      const excelName = ['漫画', '小说', '视频']
+      exportExcelDataCommon(this.$refs.tableLink.$el, `${excelName[this.radioCtAndCpValue - 1]}链接`)
     },
     // 一键添加漫画小说视频 type 1漫画 2小说 3视频
-    async addMoreNovelOrCartoon(type){
+    async addMoreNovelOrCartoon(type) {
       let result = []
-      
+
       // 一键添加漫画(不用检查链接格式)
-      if(type == 1){
+      if (type === 1) {
         this.logDataCt = ''
-        if(!this.cartoon.cartoonCtDetail.length){
+        if (!this.cartoon.cartoonCtDetail.length) {
           return this.$message.warning('请采集漫画链接')
         }
         result = this.selectChapterOption.length > 0 ? this.selectChapterOption : this.cartoon.cartoonCtDetail
         this.logDataCt = '开始一键添加漫画...\n' + this.logDataCt
         const linkArrLength = result.length
         for (let i = 0; i < result.length; i++) {
-          const item = result[i];
+          const item = result[i]
           // // 准备采集漫画详情的请求参数
           const params = {
-            // item https://www.mkzhan.com/212350/ 
+            // item https://www.mkzhan.com/212350/
             // ["com/212350/", "212350"]
-            comicId:item['url'].match(/com\/(.+)\//)[1],//漫画Id
-            chapterId:'', 
+            comicId: item['url'].match(/com\/(.+)\//)[1], // 漫画Id
+            chapterId: '',
             method: 'GET',
             platform: 1,
             detail: 1 // 1漫画详情 2漫画章节
           }
           const res = await this.$API.common.queryDetailById(params)
-          if(res.code != 200) {
-            this.logDataCt =`${i + 1}/${linkArrLength},漫画${params.comicId}采集失败,【${res.code}】${res.msg || ''}\n` + this.logDataCt
-          } else{
-            const {title,content,cover,price,is_vip,status,cover_lateral,comic_id,author_id} = res.data
+          if (res.code !== 200) {
+            this.logDataCt = `${i + 1}/${linkArrLength},漫画${params.comicId}采集失败,【${res.code}】${res.msg || ''}\n` + this.logDataCt
+          } else {
+            const { title, content, cover, price, is_vip, status, cover_lateral, comic_id, author_id } = res.data
             // 准备添加漫画的请求参数
-            const cartoon ={
-              name:title,
-              cartoon_introduction:content,
-              img_url:cover,
+            const cartoon = {
+              name: title,
+              cartoon_introduction: content,
+              img_url: cover,
               cover_lateral,
               price,
-              charge:is_vip,
+              charge: is_vip,
               status,
-              platform_comic:comic_id,
-              category_id:1,
-              author:author_id,
+              platform_comic: comic_id,
+              category_id: 1,
+              author: author_id
             }
             this.logDataCt = `${i + 1}/${linkArrLength}漫画${params.comicId}添加成功\n` + this.logDataCt
             this.logDataCt = `开始添加${cartoon.name}\n` + this.logDataCt
             const res1 = await this.$API.cartoon.addList(cartoon)
-            if(res1.code == 200){
+            if (res1.code === 200) {
               this.logDataCt = `${cartoon.name}添加成功\n` + this.logDataCt
-            }else{
+            } else {
               this.logDataCt = `${cartoon.name}添加失败,${res1.msg}\n` + this.logDataCt
             }
           }
         }
-        this.logDataCt  = `一键添加漫画完成\n` +this.logDataCt 
-
-      }else if(type == 2){
+        this.logDataCt = `一键添加漫画完成\n` + this.logDataCt
+      } else if (type === 2) {
         // 一键添加小说(不用检查链接格式)
-        if(this.activeName=='third'){
+        if (this.activeName === 'third') {
           this.logDataCp = ''
-          if(this.radioChpaterValue=='1'){
-            if(!this.novel.novelCtDetail.length) return this.$message.warning('请采集小说链接')
+          if (this.radioChpaterValue === '1') {
+            if (!this.novel.novelCtDetail.length) return this.$message.warning('请采集小说链接')
             result = this.selectChapterOption.length > 0 ? this.selectChapterOption : this.novel.novelCtDetail
             this.logDataCp = '开始一键添加小说...\n' + this.logDataCp
           }
-        }else if(this.activeName == 'second'){
-          this.logDataCtAndCp=''
-          if(this.radioCtAndCpValue=='2'){
-            if(!this.link.novelCtLink.length) return this.$message.warning('请采集小说链接')
+        } else if (this.activeName === 'second') {
+          this.logDataCtAndCp = ''
+          if (this.radioCtAndCpValue === '2') {
+            if (!this.link.novelCtLink.length) return this.$message.warning('请采集小说链接')
             result = this.selectChapterOption.length > 0 ? this.selectChapterOption : this.link.novelCtLink
             this.logDataCtAndCp = '开始一键添加小说...\n' + this.logDataCtAndCp
           }
         }
         const linkArrLength = result.length
         for (let i = 0; i < result.length; i++) {
-          const item = result[i];
+          const item = result[i]
           // item https://www.9biquge.info/44/44347/
           // ids ["com/44/44347", "44/44347"]
-          let ids = item['url'].match(/info\/(.+)\//)[1].split('/')
+          const ids = item['url'].match(/info\/(.+)\//)[1].split('/')
           // 准备采集小说详情的请求参数
           const params = {
-            comicId:ids[1],
-            pageId:ids[0]
+            comicId: ids[1],
+            pageId: ids[0]
           }
           const res = await this.$API.common.queryNovelDetail(params)
           // 采集漫画/小说链接
-          if(this.activeName=='second'){
-            if(res.code != 200) {
-              this.logDataCtAndCp =`${i + 1}/${linkArrLength},小说${params.comicId}采集失败,IP限制\n` + this.logDataCtAndCp
-            }else{
+          if (this.activeName === 'second') {
+            if (res.code !== 200) {
+              this.logDataCtAndCp = `${i + 1}/${linkArrLength},小说${params.comicId}采集失败,IP限制\n` + this.logDataCtAndCp
+            } else {
               const novel = res.data
               this.logDataCtAndCp = `${i + 1}/${linkArrLength}小说${params.comicId}添加成功\n` + this.logDataCtAndCp
               this.logDataCtAndCp = `开始添加${novel.name}\n` + this.logDataCtAndCp
               novel['category_id'] = 1
               const res1 = await this.$API.novel.addList(novel)
-              if(res1.code == 200){
+              if (res1.code === 200) {
                 this.logDataCtAndCp = `${novel.name}添加成功\n` + this.logDataCtAndCp
-              }else{
+              } else {
                 this.logDataCtAndCp = `${novel.name}添加失败,${res1.msg}\n` + this.logDataCtAndCp
               }
             }
-          }else{
-            if(res.code != 200) {
-              this.logDataCp =`${i + 1}/${linkArrLength},小说${params.comicId}采集失败,,IP限制\n` + this.logDataCp
-            }else{
+          } else {
+            if (res.code !== 200) {
+              this.logDataCp = `${i + 1}/${linkArrLength},小说${params.comicId}采集失败,,IP限制\n` + this.logDataCp
+            } else {
               const novel = res.data
               this.logDataCp = `${i + 1}/${linkArrLength}小说${params.comicId}添加成功\n` + this.logDataCp
               this.logDataCp = `开始添加${novel.name}\n` + this.logDataCp
               novel['category_id'] = 1
               const res1 = await this.$API.novel.addList(novel)
-              if(res1.code == 200){
+              if (res1.code === 200) {
                 this.logDataCp = `${novel.name}添加成功\n` + this.logDataCp
-              }else{
+              } else {
                 this.logDataCp = `${novel.name}添加失败,${res1.msg}\n` + this.logDataCp
               }
             }
           }
         }
-        this.activeName == 'third'?this.logDataCp  = `一键添加小说完成\n` +this.logDataCp: this.logDataCtAndCp  = `一键添加小说完成\n` +this.logDataCtAndCp
-      }else{
-        if(!this.link.videoCtLink.length) return this.$message.success('请采集视频链接')
-        this.logDataCtAndCp=''
+        this.activeName === 'third' ? this.logDataCp = `一键添加小说完成\n` + this.logDataCp : this.logDataCtAndCp = `一键添加小说完成\n` + this.logDataCtAndCp
+      } else {
+        if (!this.link.videoCtLink.length) return this.$message.success('请采集视频链接')
+        this.logDataCtAndCp = ''
         result = this.selectChapterOption.length > 0 ? this.selectChapterOption : this.link.videoCtLink
         this.logDataCtAndCp = '开始一键添加视频...\n' + this.logDataCtAndCp
         const linkArrLength = result.length
         for (let i = 0; i < result.length; i++) {
-          const item = result[i];
+          const item = result[i]
           // // 准备采集视频详情的请求参数
           const params = {
-            // item https://www.shnakun.com/voddetail/41777.html/ 
+            // item https://www.shnakun.com/voddetail/41777.html/
             // ["voddetail/41777.", "41777"]
-            comicId:item['url'].match(/voddetail\/(.+)\./)[1],//视频Id,
-            type:0
+            comicId: item.match(/voddetail\/(.+)\./)[1], // 视频Id,
+            type: 0
           }
+          console.log(params)
           const res = await this.$API.common.queryVideolDetail(params)
-          if(res.code != 200) {
-            this.logDataCtAndCp =`${i + 1}/${linkArrLength},漫画${params.comicId}采集失败,【${res.code}】${res.msg || ''}\n` + this.logDataCtAndCp
-          } else{
-            const {name,intro,actor,director,platform_comic,cover_lateral} = res.data
+          if (res.code !== 200) {
+            this.logDataCtAndCp = `${i + 1}/${linkArrLength},漫画${params.comicId}采集失败,【${res.code}】${res.msg || ''}\n` + this.logDataCtAndCp
+          } else {
+            const { name, intro, actor, director, platform_comic, cover_lateral } = res.data
             // 准备添加视频的请求参数
-            const video ={
+            const video = {
               name,
               intro,
               actor,
               director,
               platform_comic,
               cover_lateral,
-              category_id:'1'
+              category_id: '1'
             }
             this.logDataCtAndCp = `${i + 1}/${linkArrLength}视频${params.comicId}添加成功\n` + this.logDataCtAndCp
             this.logDataCtAndCp = `开始添加 ${video.name}\n` + this.logDataCtAndCp
             const res1 = await this.$API.video.addList(video)
-            if(res1.code == 200){
+            if (res1.code === 200) {
               this.logDataCtAndCp = `视频 ${video.name}添加成功\n` + this.logDataCtAndCp
-            }else{
+            } else {
               this.logDataCtAndCp = `视频 ${video.name}添加失败,${res1.msg}\n` + this.logDataCtAndCp
             }
           }
-          
         }
-        this.logDataCt  = `一键添加视频完成\n` +this.logDataCt 
-
-
+        this.logDataCtAndCp = `一键添加视频完成\n` + this.logDataCtAndCp
       }
-      
     },
     // 清理列表 1漫画 2小说 3漫画/小说
-    clearList(type){
-      if(type == 1){
-        if(this.radioCatroonValue == '1'){
+    clearList(type) {
+      if (type === 1) {
+        if (this.radioCatroonValue === '1') {
           this.cartoon.cartoonCtDetail = []
-        }else{
+        } else {
           this.cartoon.cartoonCtChapterAll = []
           this.cartoon.cartoonCtChapter = []
-          Object.assign(this.$data.pgCatroonParams,this.$options.data().pgCatroonParams)
+          Object.assign(this.$data.pgCartoonParams, this.$options.data().pgCartoonParams)
         }
-      }else if(type == 2){
-        if(this.radioChpaterValue == '1'){
+      } else if (type === 2) {
+        if (this.radioChpaterValue === '1') {
           this.novel.novelCtDetail = []
-        }else{
+        } else {
           this.novel.novelCtChapterAll = []
           this.novel.novelCtChapter = []
-          Object.assign(this.$data.pgNovelParams,this.$options.data().pgNovelParams)
+          Object.assign(this.$data.pgNovelParams, this.$options.data().pgNovelParams)
         }
-      }else{
+      } else {
         switch (this.radioCtAndCpValue) {
           case '1':
             this.link.cartoonCtLink = []
             this.link.cartoonCtLinkAll = []
-            Object.assign(this.$data.pgCtLinkParams,this.$options.data().pgCtLinkParams)
-
-            break;
+            Object.assign(this.$data.pgCtLinkParams, this.$options.data().pgCtLinkParams)
+            break
           case '2':
             this.link.novelCtLinkAll = []
             this.link.novelCtLink = []
-            Object.assign(this.$data.pgCpLinkParams,this.$options.data().pgCpLinkParams)
+            Object.assign(this.$data.pgCpLinkParams, this.$options.data().pgCpLinkParams)
+            break
           case '3':
             this.link.videoCtLinkAll = []
             this.link.videoCtLink = []
-            Object.assign(this.$data.pgVeLinkParams,this.$options.data().pgVeLinkParams)
+            Object.assign(this.$data.pgVeLinkParams, this.$options.data().pgVeLinkParams)
+            break
         }
-        
       }
-     
-      
     },
     // 多选框改变时，选择的章节列表
-    selectChange(selection){
+    selectChange(selection) {
       this.selectChapterOption = selection
     },
 
     // 每页显示的条数改变时
-    sizeChange(pageSize){
+    sizeChange(pageSize) {
       // 漫画章节
-      if(this.radioCatroonValue == '2'){
+      if (this.radioCatroonValue === '2') {
         this.pgCartoonParams.pageCt = 1
         this.pgCartoonParams.pageSizeCt = pageSize
-        if(this.cartoon.cartoonCtChapterAll.length){
-          const {pageCt,pageSizeCt} = this.pgCartoonParams
-          this.cartoon.cartoonCtChapter =this.sliceArray(this.cartoon.cartoonCtChapterAll,pageCt,pageSizeCt)
+        if (this.cartoon.cartoonCtChapterAll.length) {
+          const { pageCt, pageSizeCt } = this.pgCartoonParams
+          this.cartoon.cartoonCtChapter = this.sliceArray(this.cartoon.cartoonCtChapterAll, pageCt, pageSizeCt)
         }
-      }else if(this.radioChpaterValue = '2'){
+      } else if (this.radioChpaterValue === '2') {
         // 小说章节
         this.pgNovelParams.pageCp = 1
         this.pgNovelParams.pageSizeCp = pageSize
-        if(this.novel.novelCtChapterAll.length){
-          const {pageCp,pageSizeCp} = this.pgNovelParams
-          this.novel.novelCtChapter =this.sliceArray(this.novel.novelCtChapterAll,pageCp,pageSizeCp)
+        if (this.novel.novelCtChapterAll.length) {
+          const { pageCp, pageSizeCp } = this.pgNovelParams
+          this.novel.novelCtChapter = this.sliceArray(this.novel.novelCtChapterAll, pageCp, pageSizeCp)
         }
-      }else{
+      } else {
         // 漫画/小说链接 1漫画 2小说 3视频
         switch (this.radioCtAndCpValue) {
           case '1':
             this.pgCtLinkParams.pageLinkCt = 1
             this.pgCtLinkParams.pageSizeLinkCt = pageSize
-            
-            if(this.link.cartoonCtLinkAll.length){
-              const {pageLinkCt,pageSizeLinkCt} = this.pgCtLinkParams
-              this.link.cartoonCtLink =this.sliceArray(this.link.cartoonCtLinkAll,pageLinkCt,pageSizeLinkCt)
+
+            if (this.link.cartoonCtLinkAll.length) {
+              const { pageLinkCt, pageSizeLinkCt } = this.pgCtLinkParams
+              this.link.cartoonCtLink = this.sliceArray(this.link.cartoonCtLinkAll, pageLinkCt, pageSizeLinkCt)
             }
-            break;
+            break
           case '2':
             this.pgCpLinkParams.pageLinkCp = 1
             this.pgCpLinkParams.pageSizeLinkCp = pageSize
-            if(this.link.novelCtLinkAll.length){
-              const {pageLinkCp,pageSizeLinkCp} = this.pgCpLinkParams
-              this.link.novelCtLink =this.sliceArray(this.link.novelCtLinkAll,pageLinkCp,pageSizeLinkCp)
+            if (this.link.novelCtLinkAll.length) {
+              const { pageLinkCp, pageSizeLinkCp } = this.pgCpLinkParams
+              this.link.novelCtLink = this.sliceArray(this.link.novelCtLinkAll, pageLinkCp, pageSizeLinkCp)
             }
-            break;
+            break
           case '3':
             this.pgVeLinkParams.pageLinkVideo = 1
             this.pgVeLinkParams.pageSizeLinkVideo = pageSize
-            if(this.link.videoCtLinkAll.length){
-              const {pageLinkVideo,pageSizeLinkVideo} = this.pgVeLinkParams
-              this.link.videoCtLink =this.sliceArray(this.link.videoCtLinkAll,pageLinkVideo,pageSizeLinkVideo)
+            if (this.link.videoCtLinkAll.length) {
+              const { pageLinkVideo, pageSizeLinkVideo } = this.pgVeLinkParams
+              this.link.videoCtLink = this.sliceArray(this.link.videoCtLinkAll, pageLinkVideo, pageSizeLinkVideo)
             }
-            break;
+            break
         }
       }
     },
     // 当前页改变时
-    currentChange(page){
+    currentChange(page) {
       // 漫画章节
-      if(this.radioCatroonValue == '2'){
+      if (this.radioCatroonValue === '2') {
         this.pgCartoonParams.pageCt = page
-        if(this.cartoon.cartoonCtChapterAll.length){
-          const {pageCt,pageSizeCt} = this.pgCartoonParams
-          this.cartoon.cartoonCtChapter =this.sliceArray(this.cartoon.cartoonCtChapterAll,pageCt,pageSizeCt)
+        if (this.cartoon.cartoonCtChapterAll.length) {
+          const { pageCt, pageSizeCt } = this.pgCartoonParams
+          this.cartoon.cartoonCtChapter = this.sliceArray(this.cartoon.cartoonCtChapterAll, pageCt, pageSizeCt)
         }
-      }else if(this.radioChpaterValue == '2'){
+      } else if (this.radioChpaterValue === '2') {
         // 小说章节
         this.pgNovelParams.pageCp = page
-        if(this.novel.novelCtChapterAll.length){
-          const {pageCp,pageSizeCp} = this.pgNovelParams
-          this.novel.novelCtChapter =this.sliceArray(this.novel.novelCtChapterAll,pageCp,pageSizeCp)
+        if (this.novel.novelCtChapterAll.length) {
+          const { pageCp, pageSizeCp } = this.pgNovelParams
+          this.novel.novelCtChapter = this.sliceArray(this.novel.novelCtChapterAll, pageCp, pageSizeCp)
         }
-      }else{
+      } else {
         // 漫画/小说链接 1漫画 2小说 3视频
         switch (this.radioCtAndCpValue) {
           case '1':
             this.pgCtLinkParams.pageLinkCt = page
-            if(this.link.cartoonCtLinkAll.length){
-              const {pageLinkCt,pageSizeLinkCt} = this.pgCtLinkParams
-              this.link.cartoonCtLink =this.sliceArray(this.link.cartoonCtLinkAll,pageLinkCt,pageSizeLinkCt)
+            if (this.link.cartoonCtLinkAll.length) {
+              const { pageLinkCt, pageSizeLinkCt } = this.pgCtLinkParams
+              this.link.cartoonCtLink = this.sliceArray(this.link.cartoonCtLinkAll, pageLinkCt, pageSizeLinkCt)
             }
-            break;
+            break
           case '2':
             this.pgCpLinkParams.pageLinkCp = page
-            if(this.link.novelCtLinkAll.length){
-              const {pageLinkCp,pageSizeLinkCp} = this.pgCpLinkParams
-              this.link.novelCtLink =this.sliceArray(this.link.novelCtLinkAll,pageLinkCp,pageSizeLinkCp)
+            if (this.link.novelCtLinkAll.length) {
+              const { pageLinkCp, pageSizeLinkCp } = this.pgCpLinkParams
+              this.link.novelCtLink = this.sliceArray(this.link.novelCtLinkAll, pageLinkCp, pageSizeLinkCp)
             }
-            break;
+            break
           case '3':
             this.pgVeLinkParams.pageLinkVideo = page
-            if(this.link.videoCtLinkAll.length){
-              const {pageLinkVideo,pageSizeLinkVideo} = this.pgVeLinkParams
-              this.link.videoCtLink =this.sliceArray(this.link.videoCtLinkAll,pageLinkVideo,pageSizeLinkVideo)
+            if (this.link.videoCtLinkAll.length) {
+              const { pageLinkVideo, pageSizeLinkVideo } = this.pgVeLinkParams
+              this.link.videoCtLink = this.sliceArray(this.link.videoCtLinkAll, pageLinkVideo, pageSizeLinkVideo)
             }
-            break;
+            break
         }
       }
     },
 
-    sliceArray(data,page,pageSize){
-      return data.slice((page-1) * pageSize, page * pageSize)
+    sliceArray(data, page, pageSize) {
+      return data.slice((page - 1) * pageSize, page * pageSize)
     },
 
-    copy(url){
+    copy(url) {
       copyText(url)
     }
-
-    
-  },
-  watch:{
-    // 清除表格多选框状态
-    'activeName':{
-      handler(oldVal,newVal){
-        this.selectChapterOption = []
-        if(newVal == 'first'){
-          this.$refs.tableCp.clearSelection()
-          this.$refs.tableLink.clearSelection()
-        }else if(newVal == 'second'){
-          this.$refs.tableCt.clearSelection()
-          this.$refs.tableLink.clearSelection()
-        }else{
-          this.$refs.tableCp.clearSelection()
-          this.$refs.tableCt.clearSelection()
-        }
-      }
-    },
-    'radioCatroonValue':{
-      handler(){
-        this.selectChapterOption = []
-      }
-    },
-    'radioChpaterValue':{
-      handler(){
-        this.selectChapterOption = []
-      }
-    },
-    'radioCtAndCpValue':{
-      handler(){
-        this.selectChapterOption = []
-      }
-    }
-
 
   }
 }
@@ -1194,7 +1252,7 @@ export default {
         .label{
           margin-left: 10px;
         }
-        
+
       }
       &.category{
         .label{

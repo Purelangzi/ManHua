@@ -5,39 +5,38 @@
         <span>推荐</span>
         <el-button type="text" style="float: right;margin-right: 10px;" @click="getMore">更多</el-button>
       </div>
-      <div class="cartoonContent" v-loading="loading">
-        <cartoonCart v-for="cartData in cartoonData" :key="cartData.id" :cartData="cartData" />
+      <div v-loading="loading" class="cartoonContent">
+        <cartoonCart v-for="cartData in cartoonData" :key="cartData.id" :cart-data="cartData" />
       </div>
     </el-card>
   </div>
-  
-  
+
 </template>
 
 <script>
 import cartoonCart from './cartoonCart'
 export default {
-  props:{
-    cartoonData:{
-      type:Array,
-      require:true
+  name: 'CommendCartoon',
+  components: { cartoonCart },
+  props: {
+    cartoonData: {
+      type: Array,
+      default: () => []
     }
   },
-  name: 'commendCartoon',
-  components:{cartoonCart},
-  data () {
+  data() {
     return {
-        loading:true
+      loading: true
     }
   },
   mounted() {
   },
   methods: {
-    getMore(){
+    getMore() {
       this.$emit('getMore')
-      this.loading=true
+      this.loading = true
     }
-  },
+  }
 }
 </script>
 
@@ -50,7 +49,7 @@ export default {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      
+
     }
   }
   .cartoonContent{

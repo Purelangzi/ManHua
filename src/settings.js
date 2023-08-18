@@ -8,7 +8,7 @@ module.exports = {
    */
   fixedHeader: false,
 
-  /**是否开启侧边菜单logo
+  /** 是否开启侧边菜单logo
    * @type {boolean} true | false
    * @description Whether show the logo in sidebar
    */
